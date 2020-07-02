@@ -1,3 +1,10 @@
+mod projects {
+    pub mod api;
+}
+mod utils;
+
 fn main() {
-    println!("Hello, world!");
+    crate::projects::api::deploy_api_documentation()
+        .ok()
+        .unwrap();
 }

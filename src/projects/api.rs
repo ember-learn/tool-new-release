@@ -1,6 +1,6 @@
 use git2::Repository;
-use std::{path::PathBuf, process};
 use process::ExitStatus;
+use std::{path::PathBuf, process};
 
 fn clone_repos(folder: &mut PathBuf) -> Result<Repository, git2::Error> {
     println!("🤖 Cloning ember-jsonapi-docs");
@@ -45,7 +45,11 @@ fn get_env_vars() -> Vec<(String, String)> {
 }
 
 pub fn deploy_api_documentation() -> Result<ExitStatus, std::io::Error> {
+    if cfg!(windows) {
+        check_heroku_cli_windows();
+    } else {
     check_heroku_cli();
+    }
 
     let mut dir = tempfile::tempdir().unwrap().into_path();
     clone_repos(&mut dir).unwrap();

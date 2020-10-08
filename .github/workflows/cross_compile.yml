@@ -23,9 +23,6 @@ jobs:
             suffix: .exe
     steps:
       - uses: actions/checkout@v2
-      - name: Install dependencies Ubuntu
-        run: export PKG_CONFIG_PATH=/usr/lib/x86_64-linux-gnu/pkgconfig
-        if: matrix.os == 'ubuntu-latest'
       - uses: actions-rs/toolchain@v1
         with:
           toolchain: stable
@@ -33,7 +30,6 @@ jobs:
           override: true
       - uses: actions-rs/cargo@v1
         with:
-          # use-cross: true
           command: build
           args: --release --target=${{ matrix.target }}
       - name: Archive production artifacts

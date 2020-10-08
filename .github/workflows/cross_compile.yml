@@ -23,6 +23,9 @@ jobs:
             suffix: .exe
     steps:
       - uses: actions/checkout@v2
+      - name: Install dependencies Ubuntu
+        run: sudo apt-get update && sudo apt-get install --no-install-recommends openssl
+        if: matrix.os == 'ubuntu-latest'
       - uses: actions-rs/toolchain@v1
         with:
           toolchain: stable

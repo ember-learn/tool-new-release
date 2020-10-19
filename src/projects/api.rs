@@ -1,6 +1,6 @@
 use git2::Repository;
-use std::{path::PathBuf, process};
 use process::ExitStatus;
+use std::{path::PathBuf, process};
 
 fn clone_repos(folder: &mut PathBuf) -> Result<Repository, git2::Error> {
     println!("🤖 Cloning ember-jsonapi-docs");
@@ -45,7 +45,11 @@ fn get_env_vars() -> Vec<(String, String)> {
 }
 
 pub fn deploy_api_documentation() -> Result<ExitStatus, std::io::Error> {
+    if cfg!(windows) {
+        check_heroku_cli_windows();
+    } else {
     check_heroku_cli();
+    }
 
     let mut dir = tempfile::tempdir().unwrap().into_path();
     clone_repos(&mut dir).unwrap();
@@ -73,9 +77,14 @@ pub fn deploy_api_documentation() -> Result<ExitStatus, std::io::Error> {
 }
 
 // Checks if heroku-cli is installed, and  then  checks if user is logged in.
-fn check_heroku_cli() {
+// I was getting bogged down on building up the command according to the platform, so...
+fn check_heroku_cli_windows() {
     println!("👩‍💻 Checking heroku-cli");
-    match std::process::Command::new("heroku").stdout(std::process::Stdio::null()).status() {
+    match std::process::Command::new("cmd")
+        .args(&["/C", "heroku"])
+        .stdout(std::process::Stdio::null())
+        .status()
+    {
         Ok(_) => {}
         Err(_) => {
             println!("heroku-cli not found. Please install and try again: https://devcenter.heroku.com/articles/heroku-cli");
@@ -83,10 +92,56 @@ fn check_heroku_cli() {
         }
     };
 
-    match std::process::Command::new("heroku").arg("auth:whoami").status().expect("Could not confirm login").success() {
+    match std::process::Command::new("cmd")
+        .args(&["/C", "heroku", "auth:whoami"])
+        .status()
+        .expect("Could not confirm login")
+        .success()
+    {
         true => {}
         false => {
-            let status = std::process::Command::new("heroku").arg("login").spawn().expect("Could not log in user.").wait().expect("??");
+            let status = std::process::Command::new("cmd")
+                .args(&["/C", "heroku", "login"])
+                .spawn()
+                .expect("Could not log in user.")
+                .wait()
+                .expect("??");
+
+            if !status.success() {
+                std::process::exit(1);
+            }
+        }
+    };
+}
+
+// Checks if heroku-cli is installed, and  then  checks if user is logged in.
+fn check_heroku_cli() {
+    println!("👩‍💻 Checking heroku-cli");
+    match std::process::Command::new("heroku")
+        .stdout(std::process::Stdio::null())
+        .status()
+    {
+        Ok(_) => {}
+        Err(_) => {
+            println!("heroku-cli not found. Please install and try again: https://devcenter.heroku.com/articles/heroku-cli");
+            std::process::exit(1);
+        }
+    };
+
+    match std::process::Command::new("heroku")
+        .arg("auth:whoami")
+        .status()
+        .expect("Could not confirm login")
+        .success()
+    {
+        true => {}
+        false => {
+            let status = std::process::Command::new("heroku")
+                .arg("login")
+                .spawn()
+                .expect("Could not log in user.")
+                .wait()
+                .expect("??");
             
             if !status.success() {
                 std::process::exit(1);    

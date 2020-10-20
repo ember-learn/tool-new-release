@@ -44,14 +44,14 @@ fn get_env_vars() -> Vec<(String, String)> {
     res
 }
 
-pub fn deploy_api_documentation() -> Result<ExitStatus, std::io::Error> {
+pub fn deploy_api_documentation(mut dir: &mut PathBuf) -> Result<ExitStatus, std::io::Error> {
+    println!("Beginning deploy for: API Documentation\n");
+
     if cfg!(windows) {
         check_heroku_cli_windows();
     } else {
-    check_heroku_cli();
+        check_heroku_cli();
     }
-
-    let mut dir = tempfile::tempdir().unwrap().into_path();
     clone_repos(&mut dir).unwrap();
 
     println!("Installing node dependencies");
@@ -142,9 +142,9 @@ fn check_heroku_cli() {
                 .expect("Could not log in user.")
                 .wait()
                 .expect("??");
-            
+
             if !status.success() {
-                std::process::exit(1);    
+                std::process::exit(1);
             }
         }
     };

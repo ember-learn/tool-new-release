@@ -45,7 +45,7 @@ fn get_env_vars() -> Vec<(String, String)> {
     res
 }
 
-pub fn deploy_api_documentation(mut dir: &mut PathBuf) -> Result<ExitStatus, std::io::Error> {
+pub fn deploy(mut dir: &mut PathBuf) -> Result<ExitStatus, std::io::Error> {
     println!("Beginning deploy for: API Documentation\n");
 
     if cfg!(windows) {

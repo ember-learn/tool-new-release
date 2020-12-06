@@ -27,14 +27,14 @@ fn main() {
 
     match opts.step {
         Some(Step::Guides) => {
-            crate::projects::guides::deploy_guides(&mut dir).unwrap();
+            crate::projects::guides::deploy(&mut dir).unwrap();
         }
         Some(Step::Api) => {
-            crate::projects::api::deploy_api_documentation(&mut dir).unwrap();
+            crate::projects::api::deploy(&mut dir).unwrap();
         }
         None => {
-            crate::projects::guides::deploy_guides(&mut dir).unwrap();
-            crate::projects::api::deploy_api_documentation(&mut dir).unwrap();
+            crate::projects::guides::deploy(&mut dir).unwrap();
+            crate::projects::api::deploy(&mut dir).unwrap();
         }
     };
 

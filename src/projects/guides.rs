@@ -12,7 +12,7 @@ fn clone_repos(folder: &mut PathBuf) -> Result<Repository, git2::Error> {
     Ok(repo)
 }
 
-pub fn deploy_guides(mut dir: &mut PathBuf) -> Result<ExitStatus, std::io::Error> {
+pub fn deploy(mut dir: &mut PathBuf) -> Result<ExitStatus, std::io::Error> {
     println!("Beginning deploy for: Guides\n");
     prompt(
         TaskType::Manual,

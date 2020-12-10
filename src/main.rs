@@ -3,6 +3,7 @@ mod projects {
     pub mod api;
     pub mod guides;
 }
+mod repo;
 mod utils;
 
 arg_enum! {

@@ -1,32 +1,10 @@
 use crate::utils::{prompt, TaskType};
-use git2::Repository;
 use process::ExitStatus;
 use std::{path::PathBuf, process};
 
-fn clone_repos(folder: &mut PathBuf) -> Result<Repository, git2::Error> {
-    println!("🤖 Cloning ember-jsonapi-docs");
-    folder.push("ember-jsonapi-docs");
-    Repository::clone(
-        "https://github.com/ember-learn/ember-jsonapi-docs.git",
-        &folder,
-    )?;
-    folder.pop();
-
-    println!("🤖 Cloning ember.js");
-    folder.push("ember.js");
-    Repository::clone("https://github.com/emberjs/ember.js.git", &folder)?;
-    folder.pop();
-
-    println!("🤖 Cloning data");
-    folder.push("data");
-    let repo = Repository::clone("https://github.com/emberjs/data.git", &folder)?;
-    folder.pop();
-
-    Ok(repo)
-}
-
 fn get_env_vars() -> Vec<(String, String)> {
-    println!("🤖 Fetching env vars from heroku");
+    prompt(TaskType::Automated, "Fetching env vars from heroku");
+
     let heroku_vars = std::process::Command::new("heroku")
         // .current_dir(&dir)
         .arg("config")
@@ -53,7 +31,22 @@ pub fn deploy(mut dir: &mut PathBuf) -> Result<ExitStatus, std::io::Error> {
     } else {
         check_heroku_cli();
     }
-    clone_repos(&mut dir).unwrap();
+
+    crate::repo::Repo {
+        organization: "ember-learn",
+        project: "guides-source",
+    }
+    .clone(&mut dir);
+    crate::repo::Repo {
+        organization: "emberjs",
+        project: "ember.js",
+    }
+    .clone(&mut dir);
+    crate::repo::Repo {
+        organization: "emberjs",
+        project: "data",
+    }
+    .clone(&mut dir);
 
     prompt(TaskType::Automated, "Installing node dependencies");
     dir.push("ember-jsonapi-docs");

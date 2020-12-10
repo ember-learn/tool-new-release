@@ -1,16 +1,6 @@
 use crate::utils::{prompt, TaskType};
-use git2::Repository;
 use process::ExitStatus;
 use std::{path::PathBuf, process};
-
-fn clone_repos(folder: &mut PathBuf) -> Result<Repository, git2::Error> {
-    println!("🤖 Cloning guides-source");
-    folder.push("guides-source");
-    let repo = Repository::clone("https://github.com/ember-learn/guides-source.git", &folder)?;
-    folder.pop();
-
-    Ok(repo)
-}
 
 pub fn deploy(mut dir: &mut PathBuf) -> Result<ExitStatus, std::io::Error> {
     println!("Beginning deploy for: Guides\n");
@@ -19,7 +9,11 @@ pub fn deploy(mut dir: &mut PathBuf) -> Result<ExitStatus, std::io::Error> {
         "Check for pending PRs: https://github.com/ember-learn/guides-source/pulls",
     );
 
-    clone_repos(&mut dir).unwrap();
+    crate::repo::Repo {
+        organization: "ember-learn",
+        project: "guides-source",
+    }
+    .clone(&mut dir);
 
     prompt(TaskType::Automated, "Installing node dependencies");
     dir.push("guides-source");

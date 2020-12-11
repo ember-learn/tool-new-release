@@ -1,36 +1,22 @@
-use std::str::FromStr;
-
-use structopt::StructOpt;
+use structopt::{clap::arg_enum, StructOpt};
 mod projects {
     pub mod api;
     pub mod guides;
 }
 mod utils;
 
-#[derive(Debug, StructOpt)]
-enum Step {
-    Guides,
-    Api,
-}
-
-impl FromStr for Step {
-    fn from_str(s: &str) -> Result<Self, Self::Err> {
-        match s.trim() {
-            "guides" => Ok(Step::Guides),
-            "api" => Ok(Step::Api),
-            other => {
-                println!("Step \"{}\" not recognized.", other);
-                std::process::exit(1);
-            }
-        }
+arg_enum! {
+    #[derive(Debug, StructOpt)]
+    enum Step {
+        Guides,
+        Api,
     }
-
-    type Err = std::string::ParseError;
 }
 
 #[derive(Debug, StructOpt)]
 struct Opts {
-    #[structopt(short, long)]
+    #[structopt(short, long, possible_values = &Step::variants(), case_insensitive = true)]
+    /// Pick which project to run the deploy pipeline for.
     step: Option<Step>,
 }
 

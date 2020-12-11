@@ -1,3 +1,4 @@
+use crate::utils::{prompt, TaskType};
 use git2::Repository;
 use process::ExitStatus;
 use std::{path::PathBuf, process};
@@ -54,7 +55,7 @@ pub fn deploy_api_documentation(mut dir: &mut PathBuf) -> Result<ExitStatus, std
     }
     clone_repos(&mut dir).unwrap();
 
-    println!("Installing node dependencies");
+    prompt(TaskType::Automated, "Installing node dependencies");
     dir.push("ember-jsonapi-docs");
     process::Command::new("yarn")
         .current_dir(&dir)
@@ -62,7 +63,7 @@ pub fn deploy_api_documentation(mut dir: &mut PathBuf) -> Result<ExitStatus, std
         .expect("Could not install dependencies")
         .wait()?;
 
-    println!("🤖 Generating API documentation…");
+    prompt(TaskType::Automated, "Generating API documentation…");
     let vars = get_env_vars();
     let result = process::Command::new("yarn")
         .current_dir(&dir)
@@ -79,7 +80,7 @@ pub fn deploy_api_documentation(mut dir: &mut PathBuf) -> Result<ExitStatus, std
 // Checks if heroku-cli is installed, and  then  checks if user is logged in.
 // I was getting bogged down on building up the command according to the platform, so...
 fn check_heroku_cli_windows() {
-    println!("👩‍💻 Checking heroku-cli");
+    prompt(TaskType::Manual, "Checking heroku-cli");
     match std::process::Command::new("cmd")
         .args(&["/C", "heroku"])
         .stdout(std::process::Stdio::null())
@@ -116,7 +117,7 @@ fn check_heroku_cli_windows() {
 
 // Checks if heroku-cli is installed, and  then  checks if user is logged in.
 fn check_heroku_cli() {
-    println!("👩‍💻 Checking heroku-cli");
+    prompt(TaskType::Manual, "Checking heroku-cli");
     match std::process::Command::new("heroku")
         .stdout(std::process::Stdio::null())
         .status()

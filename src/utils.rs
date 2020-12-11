@@ -23,3 +23,27 @@ pub fn pause() {
     // Read a single byte and discard
     let _ = stdin.read(&mut [0u8]).unwrap();
 }
+
+use std::fmt::Display;
+
+pub enum TaskType {
+    Automated,
+    Manual,
+}
+
+impl Display for TaskType {
+    fn fmt(&self, f: &mut std::fmt::Formatter<'_>) -> std::fmt::Result {
+        match self {
+            TaskType::Automated => write!(f, "🤖"),
+            TaskType::Manual => write!(f, "👩‍💻"),
+        }
+    }
+}
+
+pub fn prompt(task_type: TaskType, description: &str) {
+    println!("{} {}", task_type, description);
+    if let TaskType::Manual = task_type {
+        crate::utils::pause();
+    }
+    print!("\n");
+}

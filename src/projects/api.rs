@@ -2,27 +2,6 @@ use crate::utils::{prompt, TaskType};
 use process::ExitStatus;
 use std::{path::PathBuf, process};
 
-fn get_env_vars() -> Vec<(String, String)> {
-    prompt(TaskType::Automated, "Fetching env vars from heroku");
-
-    let heroku_vars = std::process::Command::new("heroku")
-        // .current_dir(&dir)
-        .arg("config")
-        .arg("-s")
-        .args(&["-a", "api-viewer-json-docs-generator"])
-        .output()
-        .expect("Could not retrieve env vars.");
-    let str = String::from_utf8(heroku_vars.stdout.to_owned()).unwrap();
-
-    let mut res = vec![];
-    for line in str.trim().split("\n") {
-        let mut x = line.split("=").collect::<Vec<&str>>().into_iter();
-        res.push((x.next().unwrap().to_owned(), x.next().unwrap().to_owned()));
-    }
-
-    res
-}
-
 pub fn deploy(mut dir: &mut PathBuf) -> Result<ExitStatus, std::io::Error> {
     println!("Beginning deploy for: API Documentation\n");
 
@@ -68,6 +47,27 @@ pub fn deploy(mut dir: &mut PathBuf) -> Result<ExitStatus, std::io::Error> {
 
     std::fs::remove_dir_all(dir)?;
     result
+}
+
+fn get_env_vars() -> Vec<(String, String)> {
+    prompt(TaskType::Automated, "Fetching env vars from heroku");
+
+    let heroku_vars = std::process::Command::new("heroku")
+        // .current_dir(&dir)
+        .arg("config")
+        .arg("-s")
+        .args(&["-a", "api-viewer-json-docs-generator"])
+        .output()
+        .expect("Could not retrieve env vars.");
+    let str = String::from_utf8(heroku_vars.stdout.to_owned()).unwrap();
+
+    let mut res = vec![];
+    for line in str.trim().split("\n") {
+        let mut x = line.split("=").collect::<Vec<&str>>().into_iter();
+        res.push((x.next().unwrap().to_owned(), x.next().unwrap().to_owned()));
+    }
+
+    res
 }
 
 // Checks if heroku-cli is installed, and  then  checks if user is logged in.

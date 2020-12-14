@@ -1,6 +1,7 @@
 use structopt::{clap::arg_enum, StructOpt};
 mod projects {
     pub mod api;
+    pub mod blog_post;
     pub mod guides;
 }
 mod repo;

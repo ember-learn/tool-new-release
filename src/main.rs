@@ -4,6 +4,7 @@ mod projects {
     pub mod blog_post;
     pub mod guides;
 }
+mod pipeline;
 mod repo;
 mod utils;
 
@@ -12,14 +13,20 @@ arg_enum! {
     enum Step {
         Guides,
         Api,
+        BlogPost
     }
 }
 
 #[derive(Debug, StructOpt)]
-struct Opts {
+pub struct Opts {
     #[structopt(short, long, possible_values = &Step::variants(), case_insensitive = true)]
     /// Pick which project to run the deploy pipeline for.
     step: Option<Step>,
+
+    /// Run the deploy pipeline without actually deploying.
+    /// Useful for understanding all the necessary steps, or when working on the pipeline itself.
+    #[structopt(long)]
+    dry_run: bool,
 }
 
 fn main() {
@@ -29,14 +36,28 @@ fn main() {
 
     match opts.step {
         Some(Step::Guides) => {
-            crate::projects::guides::deploy(&mut dir).unwrap();
+            println!("Pipelines:\n · Guides");
+            crate::projects::guides::deploy(&mut dir, opts);
+            println!("Pipelines:\n ✓ Guides");
         }
         Some(Step::Api) => {
-            crate::projects::api::deploy(&mut dir).unwrap();
+            println!("Pipelines:\n · API");
+            crate::projects::api::deploy(&mut dir);
+            println!("Pipelines:\n ✓ API");
+        }
+        Some(Step::BlogPost) => {
+            println!("Pipelines:\n · Blog post");
+            crate::projects::blog_post::deploy();
+            println!("Pipelines:\n ✓ Blog post");
         }
         None => {
-            crate::projects::guides::deploy(&mut dir).unwrap();
-            crate::projects::api::deploy(&mut dir).unwrap();
+            println!("Pipelines:\n · Guides\n · API\n · Blog post");
+            crate::projects::guides::deploy(&mut dir, opts);
+            println!("Pipelines:\n ✓ Guides\n · API\n · Blog post");
+            crate::projects::api::deploy(&mut dir);
+            println!("Pipelines:\n ✓ Guides\n ✓ API\n · Blog post");
+            crate::projects::blog_post::deploy();
+            println!("Pipelines:\n ✓ Guides\n ✓ API\n ✓ Blog post");
         }
     };
 

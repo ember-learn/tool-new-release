@@ -2,7 +2,7 @@ use crate::utils::{prompt, TaskType};
 use process::ExitStatus;
 use std::{path::PathBuf, process};
 
-pub fn deploy(mut dir: &mut PathBuf) -> Result<ExitStatus, std::io::Error> {
+pub fn deploy(mut dir: &mut PathBuf) {
     println!("Beginning deploy for: API Documentation\n");
 
     if cfg!(windows) {
@@ -32,21 +32,29 @@ pub fn deploy(mut dir: &mut PathBuf) -> Result<ExitStatus, std::io::Error> {
     process::Command::new("yarn")
         .current_dir(&dir)
         .spawn()
-        .expect("Could not install dependencies")
-        .wait()?;
+        .expect("Could not spawn new process")
+        .wait()
+        .expect("Could not install dependencies");
 
     prompt(TaskType::Automated, "Generating API documentation…");
     let vars = get_env_vars();
-    let result = process::Command::new("yarn")
+    process::Command::new("yarn")
         .current_dir(&dir)
         .envs(vars)
         .args(&["run", "start", "--sync"])
         .spawn()
-        .expect("Could not compile API documentation")
-        .wait();
+        .expect("Could not spawn new process")
+        .wait()
+        .expect("Could not compile API documentation");
 
-    std::fs::remove_dir_all(dir)?;
-    result
+    clean_temporary_files(&dir);
+}
+
+// Here we try to clean the cloned repositories.
+// Since we are operating inside a temporary directory,
+// we don't consider failure to remove the direcotry to be fatal.
+fn clean_temporary_files(dir: &PathBuf) {
+    if let Err(_) = std::fs::remove_dir_all(dir) {}
 }
 
 fn get_env_vars() -> Vec<(String, String)> {

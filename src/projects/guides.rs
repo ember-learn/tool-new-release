@@ -1,4 +1,4 @@
-use crate::utils::{pause, read_input};
+use crate::utils::{prompt, TaskType};
 use git2::Repository;
 use process::ExitStatus;
 use std::{path::PathBuf, process};
@@ -14,12 +14,14 @@ fn clone_repos(folder: &mut PathBuf) -> Result<Repository, git2::Error> {
 
 pub fn deploy_guides(mut dir: &mut PathBuf) -> Result<ExitStatus, std::io::Error> {
     println!("Beginning deploy for: Guides\n");
-    println!("👩‍💻 Check for pending PRs: https://github.com/ember-learn/guides-source/pulls");
-    pause();
+    prompt(
+        TaskType::Manual,
+        "Check for pending PRs: https://github.com/ember-learn/guides-source/pulls",
+    );
 
     clone_repos(&mut dir).unwrap();
 
-    println!("🤖 Installing node dependencies");
+    prompt(TaskType::Automated, "Installing node dependencies");
     dir.push("guides-source");
     process::Command::new("npm")
         .current_dir(&dir)
@@ -28,7 +30,7 @@ pub fn deploy_guides(mut dir: &mut PathBuf) -> Result<ExitStatus, std::io::Error
         .expect("Could not install dependencies")
         .wait()?;
 
-    println!("🤖 Creating new version of guides");
+    prompt(TaskType::Automated, "Creating new version of guides");
     process::Command::new("npm")
         .current_dir(&dir)
         .arg("run")
@@ -37,13 +39,13 @@ pub fn deploy_guides(mut dir: &mut PathBuf) -> Result<ExitStatus, std::io::Error
         .expect("Failed to release guides.")
         .wait()?;
 
-    println!("👩‍💻 Confirm new guides version is deployed before proceeding");
-    pause();
+    prompt(
+        TaskType::Manual,
+        "Confirm new guides version is deployed before proceeding",
+    );
+    prompt(TaskType::Manual, "You are super duper sure it's deployed?");
+    prompt(TaskType::Automated, "Publishing Algolia index");
 
-    println!("👩‍💻 You are super duper sure it's deployed?");
-    pause();
-
-    println!("🤖 Publishing algolia index");
     process::Command::new("npm")
         .arg("run")
         .arg("release:search")

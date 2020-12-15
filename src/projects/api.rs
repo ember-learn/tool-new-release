@@ -81,7 +81,7 @@ fn get_env_vars() -> Vec<(String, String)> {
 // Checks if heroku-cli is installed, and  then  checks if user is logged in.
 // I was getting bogged down on building up the command according to the platform, so...
 fn check_heroku_cli_windows() {
-    prompt(TaskType::Manual, "Checking heroku-cli");
+    prompt(TaskType::Automated, "Checking heroku-cli");
 
     if let Err(_) = std::process::Command::new("cmd")
         .args(&["/C", "heroku"])
@@ -113,7 +113,7 @@ fn check_heroku_cli_windows() {
 
 // Checks if heroku-cli is installed, and  then  checks if user is logged in.
 fn check_heroku_cli() {
-    prompt(TaskType::Manual, "Checking heroku-cli");
+    prompt(TaskType::Automated, "Checking heroku-cli");
 
     if let Err(_) = std::process::Command::new("heroku")
         .stdout(std::process::Stdio::null())

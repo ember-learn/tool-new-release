@@ -1,5 +1,4 @@
 use crate::utils::{prompt, TaskType};
-use process::ExitStatus;
 use std::{path::PathBuf, process};
 
 pub fn deploy(mut dir: &mut PathBuf) {

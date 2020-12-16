@@ -13,7 +13,7 @@ pub fn deploy(mut dir: &mut PathBuf) {
 
     crate::repo::Repo {
         organization: "ember-learn",
-        project: "guides-source",
+        project: "ember-jsonapi-docs",
     }
     .clone(&mut dir);
     crate::repo::Repo {

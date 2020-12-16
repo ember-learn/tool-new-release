@@ -4,7 +4,6 @@ mod projects {
     pub mod blog_post;
     pub mod guides;
 }
-mod pipeline;
 mod repo;
 mod utils;
 

@@ -29,7 +29,7 @@ impl Repo<'_> {
     pub fn clone(&self, folder: &mut PathBuf) -> Repository {
         folder
             .map(self.project, |f| {
-                git2::Repository::clone("https://github.com/ember-learn/guides-source.git", f)
+                git2::Repository::clone(format!("https://github.com/{}/{}.git", self.organization, self.project).as_str(), f)
             })
             .expect(format!("Could not clone {}/{}", self.organization, self.project).as_str())
     }

@@ -30,7 +30,7 @@ pub fn deploy(mut dir: &mut PathBuf) {
     prompt(TaskType::Automated, "Installing node dependencies");
     dir.push("ember-jsonapi-docs");
     process::Command::new("yarn")
-        .current_dir(&dir)
+        .arg("install")
         .spawn()
         .expect("Could not spawn new process")
         .wait()

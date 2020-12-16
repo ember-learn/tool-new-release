@@ -36,12 +36,12 @@ fn main() {
     match opts.project {
         Some(Project::Guides) => {
             println!("Pipelines:\n · Guides");
-            crate::projects::guides::deploy(&mut dir, opts);
+            crate::projects::guides::deploy(&mut dir, &opts);
             println!("Pipelines:\n ✓ Guides");
         }
         Some(Project::Api) => {
             println!("Pipelines:\n · API");
-            crate::projects::api::deploy(&mut dir);
+            crate::projects::api::deploy(&mut dir, &opts);
             println!("Pipelines:\n ✓ API");
         }
         Some(Project::BlogPost) => {
@@ -51,9 +51,9 @@ fn main() {
         }
         None => {
             println!("Pipelines:\n · Guides\n · API\n · Blog post");
-            crate::projects::guides::deploy(&mut dir, opts);
+            crate::projects::guides::deploy(&mut dir, &opts);
             println!("Pipelines:\n ✓ Guides\n · API\n · Blog post");
-            crate::projects::api::deploy(&mut dir);
+            crate::projects::api::deploy(&mut dir, &opts);
             println!("Pipelines:\n ✓ Guides\n ✓ API\n · Blog post");
             crate::projects::blog_post::deploy();
             println!("Pipelines:\n ✓ Guides\n ✓ API\n ✓ Blog post");

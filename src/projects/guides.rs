@@ -1,7 +1,7 @@
 use crate::utils::{prompt, TaskType};
 use std::{path::PathBuf, process};
 
-pub fn deploy(mut dir: &mut PathBuf, opts: crate::Opts) {
+pub fn deploy(mut dir: &mut PathBuf, opts: &crate::Opts) {
     println!("Beginning deploy for: Guides\n");
 
     prompt(

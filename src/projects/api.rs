@@ -43,7 +43,7 @@ pub fn deploy(mut dir: &mut PathBuf) {
         .envs(vars)
         .args(&["run", "start", "--sync"])
         .spawn()
-        .expect("Could not spawn new process")
+        .unwrap()
         .wait()
         .expect("Could not compile API documentation");
 

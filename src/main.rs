@@ -9,7 +9,7 @@ mod utils;
 
 arg_enum! {
     #[derive(Debug, StructOpt)]
-    enum Step {
+    enum Project {
         Guides,
         Api,
         BlogPost
@@ -18,9 +18,9 @@ arg_enum! {
 
 #[derive(Debug, StructOpt)]
 pub struct Opts {
-    #[structopt(short, long, possible_values = &Step::variants(), case_insensitive = true)]
+    #[structopt(short, long, possible_values = &Project::variants(), case_insensitive = true)]
     /// Pick which project to run the deploy pipeline for.
-    step: Option<Step>,
+    project: Option<Project>,
 
     /// Run the deploy pipeline without actually deploying.
     /// Useful for understanding all the necessary steps, or when working on the pipeline itself.
@@ -33,18 +33,18 @@ fn main() {
 
     let opts = Opts::from_args();
 
-    match opts.step {
-        Some(Step::Guides) => {
+    match opts.project {
+        Some(Project::Guides) => {
             println!("Pipelines:\n · Guides");
             crate::projects::guides::deploy(&mut dir, opts);
             println!("Pipelines:\n ✓ Guides");
         }
-        Some(Step::Api) => {
+        Some(Project::Api) => {
             println!("Pipelines:\n · API");
             crate::projects::api::deploy(&mut dir);
             println!("Pipelines:\n ✓ API");
         }
-        Some(Step::BlogPost) => {
+        Some(Project::BlogPost) => {
             println!("Pipelines:\n · Blog post");
             crate::projects::blog_post::deploy();
             println!("Pipelines:\n ✓ Blog post");

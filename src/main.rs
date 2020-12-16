@@ -36,26 +36,26 @@ fn main() {
     match opts.project {
         Some(Project::Guides) => {
             println!("Pipelines:\n · Guides");
-            crate::projects::guides::deploy(&mut dir, &opts);
+            crate::projects::guides::run(&mut dir, &opts);
             println!("Pipelines:\n ✓ Guides");
         }
         Some(Project::Api) => {
             println!("Pipelines:\n · API");
-            crate::projects::api::deploy(&mut dir, &opts);
+            crate::projects::api::run(&mut dir, &opts);
             println!("Pipelines:\n ✓ API");
         }
         Some(Project::BlogPost) => {
             println!("Pipelines:\n · Blog post");
-            crate::projects::blog_post::deploy();
+            crate::projects::blog_post::run();
             println!("Pipelines:\n ✓ Blog post");
         }
         None => {
             println!("Pipelines:\n · Guides\n · API\n · Blog post");
-            crate::projects::guides::deploy(&mut dir, &opts);
+            crate::projects::guides::run(&mut dir, &opts);
             println!("Pipelines:\n ✓ Guides\n · API\n · Blog post");
-            crate::projects::api::deploy(&mut dir, &opts);
+            crate::projects::api::run(&mut dir, &opts);
             println!("Pipelines:\n ✓ Guides\n ✓ API\n · Blog post");
-            crate::projects::blog_post::deploy();
+            crate::projects::blog_post::run();
             println!("Pipelines:\n ✓ Guides\n ✓ API\n ✓ Blog post");
         }
     };

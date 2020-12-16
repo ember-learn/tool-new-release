@@ -2,7 +2,7 @@ use utils::TaskType;
 
 use crate::utils::{self, prompt};
 
-pub fn deploy() {
+pub fn run() {
     prompt(
         TaskType::Manual,
         "Go to https://github.com/ember-learn/ember-blog/pulls.",

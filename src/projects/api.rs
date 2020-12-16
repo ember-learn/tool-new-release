@@ -1,7 +1,7 @@
 use crate::{Opts, utils::{prompt, TaskType}};
 use std::{path::PathBuf, process};
 
-pub fn deploy(mut dir: &mut PathBuf, opts: &Opts) {
+pub fn run(mut dir: &mut PathBuf, opts: &Opts) {
     println!("Beginning deploy for: API Documentation\n");
 
     if cfg!(windows) {

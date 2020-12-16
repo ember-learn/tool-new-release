@@ -47,16 +47,7 @@ pub fn deploy(mut dir: &mut PathBuf, opts: crate::Opts) {
         "Confirm new guides version is deployed before proceeding",
     );
     prompt(TaskType::Manual, "You are super duper sure it's deployed?");
-    prompt(TaskType::Automated, "Publishing Algolia index");
-    if !opts.dry_run {
-        process::Command::new("npm")
-            .arg("run")
-            .arg("release:search")
-            .spawn()
-            .expect("Couldn't start process.")
-            .wait()
-            .expect("Failed to publish algolia index");
-    }
+    publish_algolia(&opts);
 }
 
 /// This function runs the npm script in the project that

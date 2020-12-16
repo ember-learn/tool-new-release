@@ -1,8 +1,7 @@
-use crate::utils::{prompt, TaskType};
-use process::ExitStatus;
+use crate::{Opts, utils::{prompt, TaskType}};
 use std::{path::PathBuf, process};
 
-pub fn deploy(mut dir: &mut PathBuf) -> Result<ExitStatus, std::io::Error> {
+pub fn run(mut dir: &mut PathBuf, opts: &Opts) {
     println!("Beginning deploy for: API Documentation\n");
 
     if cfg!(windows) {
@@ -13,7 +12,7 @@ pub fn deploy(mut dir: &mut PathBuf) -> Result<ExitStatus, std::io::Error> {
 
     crate::repo::Repo {
         organization: "ember-learn",
-        project: "guides-source",
+        project: "ember-jsonapi-docs",
     }
     .clone(&mut dir);
     crate::repo::Repo {
@@ -29,24 +28,38 @@ pub fn deploy(mut dir: &mut PathBuf) -> Result<ExitStatus, std::io::Error> {
 
     prompt(TaskType::Automated, "Installing node dependencies");
     dir.push("ember-jsonapi-docs");
-    process::Command::new("yarn")
-        .current_dir(&dir)
-        .spawn()
-        .expect("Could not install dependencies")
-        .wait()?;
+    if opts.dry_run {
+        process::Command::new("yarn")
+            .current_dir(&dir)
+            .arg("install")
+            .spawn()
+            .expect("Could not spawn new process")
+            .wait()
+            .expect("Could not install dependencies");
+    }
 
     prompt(TaskType::Automated, "Generating API documentation…");
     let vars = get_env_vars();
-    let result = process::Command::new("yarn")
-        .current_dir(&dir)
-        .envs(vars)
-        .args(&["run", "start", "--sync"])
-        .spawn()
-        .expect("Could not compile API documentation")
-        .wait();
+    if opts.dry_run {
+        process::Command::new("yarn")
+            .current_dir(&dir)
+            .envs(vars)
+            .args(&["run", "start", "--sync"])
+            .spawn()
+            .unwrap()
+            .wait()
+            .expect("Could not compile API documentation");
+    }
+    dir.pop();
 
-    std::fs::remove_dir_all(dir)?;
-    result
+    clean_temporary_files(&dir);
+}
+
+// Here we try to clean the cloned repositories.
+// Since we are operating inside a temporary directory,
+// we don't consider failure to remove the direcotry to be fatal.
+fn clean_temporary_files(dir: &PathBuf) {
+    if let Err(_) = std::fs::remove_dir_all(dir) {}
 }
 
 fn get_env_vars() -> Vec<(String, String)> {
@@ -73,7 +86,7 @@ fn get_env_vars() -> Vec<(String, String)> {
 // Checks if heroku-cli is installed, and  then  checks if user is logged in.
 // I was getting bogged down on building up the command according to the platform, so...
 fn check_heroku_cli_windows() {
-    prompt(TaskType::Manual, "Checking heroku-cli");
+    prompt(TaskType::Automated, "Checking heroku-cli");
 
     if let Err(_) = std::process::Command::new("cmd")
         .args(&["/C", "heroku"])
@@ -105,7 +118,7 @@ fn check_heroku_cli_windows() {
 
 // Checks if heroku-cli is installed, and  then  checks if user is logged in.
 fn check_heroku_cli() {
-    prompt(TaskType::Manual, "Checking heroku-cli");
+    prompt(TaskType::Automated, "Checking heroku-cli");
 
     if let Err(_) = std::process::Command::new("heroku")
         .stdout(std::process::Stdio::null())

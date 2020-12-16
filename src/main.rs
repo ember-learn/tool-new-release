@@ -1,6 +1,7 @@
 use structopt::{clap::arg_enum, StructOpt};
 mod projects {
     pub mod api;
+    pub mod blog_post;
     pub mod guides;
 }
 mod repo;
@@ -8,17 +9,23 @@ mod utils;
 
 arg_enum! {
     #[derive(Debug, StructOpt)]
-    enum Step {
+    enum Project {
         Guides,
         Api,
+        BlogPost
     }
 }
 
 #[derive(Debug, StructOpt)]
-struct Opts {
-    #[structopt(short, long, possible_values = &Step::variants(), case_insensitive = true)]
+pub struct Opts {
+    #[structopt(short, long, possible_values = &Project::variants(), case_insensitive = true)]
     /// Pick which project to run the deploy pipeline for.
-    step: Option<Step>,
+    project: Option<Project>,
+
+    /// Run the deploy pipeline without actually deploying.
+    /// Useful for understanding all the necessary steps, or when working on the pipeline itself.
+    #[structopt(long)]
+    dry_run: bool,
 }
 
 fn main() {
@@ -26,16 +33,30 @@ fn main() {
 
     let opts = Opts::from_args();
 
-    match opts.step {
-        Some(Step::Guides) => {
-            crate::projects::guides::deploy(&mut dir).unwrap();
+    match opts.project {
+        Some(Project::Guides) => {
+            println!("Pipelines:\n · Guides");
+            crate::projects::guides::run(&mut dir, &opts);
+            println!("Pipelines:\n ✓ Guides");
         }
-        Some(Step::Api) => {
-            crate::projects::api::deploy(&mut dir).unwrap();
+        Some(Project::Api) => {
+            println!("Pipelines:\n · API");
+            crate::projects::api::run(&mut dir, &opts);
+            println!("Pipelines:\n ✓ API");
+        }
+        Some(Project::BlogPost) => {
+            println!("Pipelines:\n · Blog post");
+            crate::projects::blog_post::run();
+            println!("Pipelines:\n ✓ Blog post");
         }
         None => {
-            crate::projects::guides::deploy(&mut dir).unwrap();
-            crate::projects::api::deploy(&mut dir).unwrap();
+            println!("Pipelines:\n · Guides\n · API\n · Blog post");
+            crate::projects::guides::run(&mut dir, &opts);
+            println!("Pipelines:\n ✓ Guides\n · API\n · Blog post");
+            crate::projects::api::run(&mut dir, &opts);
+            println!("Pipelines:\n ✓ Guides\n ✓ API\n · Blog post");
+            crate::projects::blog_post::run();
+            println!("Pipelines:\n ✓ Guides\n ✓ API\n ✓ Blog post");
         }
     };
 

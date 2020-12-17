@@ -40,10 +40,4 @@ tool-new-release --version 3.24.0
 ### Running a specific project
 
 If you need to run the pipeline for one of the projects, you can specify a `--project` (or `-p`) option when invoking the tool.
-The possible values are `Guides`, `Api`, and `BlogPost`:
-
-```bash
-tool-new-release --version 3.24.0 --project Guides
-```
-
 See `tool-new-release --help` for the full list of projects.

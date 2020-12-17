@@ -2,17 +2,38 @@
 
 This is a tool to help the learning team with the ember.js releases for the 6-week cycle.
 
+At the moment, the following steps of the [learning team process](https://github.com/ember-learn/handbook/blob/master/ember-releases.md) are implemented:
+
+1. - [x] Guides
+2. - [x] API documentation
+3. - [x] Release blog post
+4. - [ ] Release pages
+5. - [ ] Glitch Ember starter
+6. - [ ] Ember Wikipedia
+
 ## Prerequisites
 
 * Stable Rust installed (see: https://rustup.rs)
+* `heroku-cli` (API docs)
 
 ## How to use
 
-* Clone repository
-* cd into repository directory
-* Run `cargo run --release`
-* Follow instructions until process is over
+To run the entire release pipeline, do the following:
 
-Legend:
-* 👩‍💻- User input will be required for this task
-* 🤖- This step is automated
+* Go to the [releases page](https://github.com/ember-learn/tool-new-release/releases)
+* Find the latest release. Should be a draft called "draft".
+* Expand the assets and download the relevant one for your platform.
+* Run the binary
+  * If you are on macOS you will need to right-click and select "Open" to get around signage limitations
+* Follow the instructions as they are presented
+
+### Running a specific project
+
+If you need to run the pipeline for one of the projects, you can specify a `--project` (or `-p`) option when invoking the tool.
+The possible values are `Guides`, `Api`, and `BlogPost`:
+
+```bash
+tool-new-release --project Guides
+tool-new-release --project Api
+tool-new-release --project BlogPost
+```

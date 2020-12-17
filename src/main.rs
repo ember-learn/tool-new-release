@@ -1,4 +1,5 @@
 use structopt::{clap::arg_enum, StructOpt};
+use utils::prompt;
 mod projects {
     pub mod api;
     pub mod blog_post;
@@ -33,28 +34,43 @@ fn main() {
 
     let opts = Opts::from_args();
 
+    println!(
+        "Ember Core Learning team release process.
+
+You will be presented with instructions.
+There will be some interactive and manual steps, so please read the instructions carefully.
+
+Legend:
+* {} - User input will be required for this task
+* {} - This step is automated
+",
+        utils::TaskType::Manual,
+        utils::TaskType::Automated
+    );
+    prompt(utils::TaskType::Manual, "Ready to start?");
+
     match opts.project {
         Some(Project::Guides) => {
-            println!("Pipelines:\n · Guides");
+            println!("Pipelines:\n ➡ Guides");
             crate::projects::guides::run(&mut dir, &opts);
             println!("Pipelines:\n ✓ Guides");
         }
         Some(Project::Api) => {
-            println!("Pipelines:\n · API");
+            println!("Pipelines:\n ➡ API");
             crate::projects::api::run(&mut dir, &opts);
             println!("Pipelines:\n ✓ API");
         }
         Some(Project::BlogPost) => {
-            println!("Pipelines:\n · Blog post");
+            println!("Pipelines:\n ➡ Blog post");
             crate::projects::blog_post::run();
             println!("Pipelines:\n ✓ Blog post");
         }
         None => {
-            println!("Pipelines:\n · Guides\n · API\n · Blog post");
+            println!("Pipelines:\n ➡ Guides\n · API\n · Blog post");
             crate::projects::guides::run(&mut dir, &opts);
-            println!("Pipelines:\n ✓ Guides\n · API\n · Blog post");
+            println!("Pipelines:\n ✓ Guides\n ➡ API\n · Blog post");
             crate::projects::api::run(&mut dir, &opts);
-            println!("Pipelines:\n ✓ Guides\n ✓ API\n · Blog post");
+            println!("Pipelines:\n ✓ Guides\n ✓ API\n ➡ Blog post");
             crate::projects::blog_post::run();
             println!("Pipelines:\n ✓ Guides\n ✓ API\n ✓ Blog post");
         }

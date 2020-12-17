@@ -2,8 +2,6 @@ use crate::utils::{prompt, TaskType};
 use std::{path::PathBuf, process};
 
 pub fn run(mut dir: &mut PathBuf, opts: &crate::Opts) {
-    println!("Beginning deploy for: Guides\n");
-
     prompt(
         TaskType::Manual,
         "Check for pending PRs: https://github.com/ember-learn/guides-source/pulls",

@@ -4,6 +4,7 @@ mod projects {
     pub mod blog_post;
     pub mod glitch;
     pub mod guides;
+    pub mod release_pages;
 }
 mod repo;
 mod utils;
@@ -14,6 +15,7 @@ arg_enum! {
         Guides,
         Api,
         BlogPost,
+        ReleasePages,
         Glitch
     }
 }
@@ -53,21 +55,28 @@ fn main() {
             crate::projects::blog_post::run();
             println!("Pipelines:\n ✓ Blog post");
         }
+        Some(Project::ReleasePages) => {
+            println!("Pipelines:\n · Release pages\n");
+            crate::projects::release_pages::run();
+            println!("Pipelines:\n ✓ Release pages");
+        }
         Some(Project::Glitch) => {
             println!("Pipelines:\n · Glitch\n");
             crate::projects::glitch::run(&mut dir, &opts);
             println!("Pipelines:\n ✓ Glitch");
         }
         None => {
-            println!("Pipelines:\n · Guides\n · API\n · Blog post\n · Glitch");
+            println!("Pipelines:\n · Guides\n · API\n · Blog post\n · Release pages\n · Glitch");
             crate::projects::guides::run(&mut dir, &opts);
-            println!("Pipelines:\n ✓ Guides\n · API\n · Blog post\n · Glitch");
+            println!("Pipelines:\n ✓ Guides\n · API\n · Blog post\n · Release pages\n · Glitch");
             crate::projects::api::run(&mut dir, &opts);
-            println!("Pipelines:\n ✓ Guides\n ✓ API\n · Blog post\n · Glitch");
+            println!("Pipelines:\n ✓ Guides\n ✓ API\n · Blog post\n · Release pages\n · Glitch");
             crate::projects::blog_post::run();
-            println!("Pipelines:\n ✓ Guides\n ✓ API\n ✓ Blog post\n · Glitch");
+            println!("Pipelines:\n ✓ Guides\n ✓ API\n ✓ Blog post\n · Release pages\n · Glitch");
+            crate::projects::release_pages::run();
+            println!("Pipelines:\n ✓ Guides\n ✓ API\n ✓ Blog post\n ✓ Release pages\n · Glitch");
             crate::projects::glitch::run(&mut dir, &opts);
-            println!("Pipelines:\n ✓ Guides\n ✓ API\n ✓ Blog post\n ✓ Glitch");
+            println!("Pipelines:\n ✓ Guides\n ✓ API\n ✓ Blog post\n ✓ Release pages\n ✓ Glitch");
         }
     };
 }

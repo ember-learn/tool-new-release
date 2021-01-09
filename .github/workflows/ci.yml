@@ -20,6 +20,9 @@ jobs:
             target: x86_64-apple-darwin
             suffix: ''
           - os: ubuntu-latest
+            target: x86_64-unknown-linux-musl
+            suffix: ''
+          - os: ubuntu-latest
             target: x86_64-unknown-linux-gnu
             suffix: ''
           - os: windows-latest
@@ -32,10 +35,18 @@ jobs:
           toolchain: stable
           target: ${{ matrix.target }}
           override: true
+      - name: Add musl target
+        if: ${{ matrix.target == 'x86_64-unknown-linux-musl' }}
+        run: rustup target add ${{ matrix.target }}
+      - name: Install musl
+        if: ${{ matrix.target == 'x86_64-unknown-linux-musl' }}
+        run: sudo apt-get install musl-tools
       - uses: actions-rs/cargo@v1
         with:
           command: build
           args: --release --target=${{ matrix.target }}
+      - name: Make binary executable
+        run: chmod u+x ./target/${{ matrix.target }}/release/tool-new-release${{ matrix.suffix }}
       - name: Archive production artifacts
         uses: actions/upload-artifact@v2
         with:

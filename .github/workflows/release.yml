@@ -77,3 +77,40 @@ jobs:
           asset_path: ./target/${{ matrix.target }}/release/tool-new-release${{ matrix.suffix }}
           asset_name: tool-new-release-${{ matrix.target }}${{ matrix.suffix }}
           asset_content_type: application/octet-stream
+
+  build_musl:
+    name: Build with musl target
+    runs-on: '${{ matrix.os }}'
+    strategy:
+      matrix:
+        include:
+          - os: ubuntu-latest
+            target: x86_64-unknown-linux-musl
+            suffix: ''
+    steps:
+      - uses: actions/checkout@v2
+      - uses: actions-rs/toolchain@v1
+        with:
+          toolchain: stable
+          target: ${{ matrix.target }}
+          override: true
+      - name: Add musl target
+        run: |
+          rustup target add x86_64-unknown-linux-musl
+      - name: Install musl
+        run: |
+          sudo apt-get install musl-tools
+      - uses: actions-rs/cargo@v1
+        with:
+          command: build
+          args: --release --target=${{ matrix.target }}
+      - name: Upload release asset
+        id: upload-release-asset
+        uses: actions/upload-release-asset@v1
+        env:
+          GITHUB_TOKEN: ${{ secrets.GITHUB_TOKEN }}
+        with:
+          upload_url: ${{ env.RELEASE_UPLOAD_URL }} # This pulls from the CREATE RELEASE step above, referencing it's ID to get its outputs object, which include a `upload_url`. See this blog post for more info: https://jasonet.co/posts/new-features-of-github-actions/#passing-data-to-future-steps 
+          asset_path: ./target/${{ matrix.target }}/release/tool-new-release${{ matrix.suffix }}
+          asset_name: tool-new-release-${{ matrix.target }}${{ matrix.suffix }}
+          asset_content_type: application/octet-stream

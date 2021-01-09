@@ -13,16 +13,19 @@ pub fn run(mut dir: &mut PathBuf, opts: &Opts) {
     crate::repo::Repo {
         organization: "ember-learn",
         project: "ember-jsonapi-docs",
+        url: None
     }
     .clone(&mut dir);
     crate::repo::Repo {
         organization: "emberjs",
         project: "ember.js",
+        url: None
     }
     .clone(&mut dir);
     crate::repo::Repo {
         organization: "emberjs",
         project: "data",
+        url: None
     }
     .clone(&mut dir);
 

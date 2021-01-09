@@ -2,6 +2,7 @@ use structopt::{clap::arg_enum, StructOpt};
 mod projects {
     pub mod api;
     pub mod blog_post;
+    pub mod glitch;
     pub mod guides;
 }
 mod repo;
@@ -12,7 +13,8 @@ arg_enum! {
     enum Project {
         Guides,
         Api,
-        BlogPost
+        BlogPost,
+        Glitch
     }
 }
 
@@ -26,11 +28,13 @@ pub struct Opts {
     /// Useful for understanding all the necessary steps, or when working on the pipeline itself.
     #[structopt(long)]
     dry_run: bool,
+
+    #[structopt(short, long)]
+    version: String,
 }
 
 fn main() {
     let mut dir = tempfile::tempdir().unwrap().into_path();
-
     let opts = Opts::from_args();
 
     match opts.project {
@@ -49,16 +53,21 @@ fn main() {
             crate::projects::blog_post::run();
             println!("Pipelines:\n ✓ Blog post");
         }
+        Some(Project::Glitch) => {
+            println!("Pipelines:\n · Glitch\n");
+            crate::projects::glitch::run(&mut dir, &opts);
+            println!("Pipelines:\n ✓ Glitch");
+        }
         None => {
-            println!("Pipelines:\n · Guides\n · API\n · Blog post");
+            println!("Pipelines:\n · Guides\n · API\n · Blog post\n · Glitch");
             crate::projects::guides::run(&mut dir, &opts);
-            println!("Pipelines:\n ✓ Guides\n · API\n · Blog post");
+            println!("Pipelines:\n ✓ Guides\n · API\n · Blog post\n · Glitch");
             crate::projects::api::run(&mut dir, &opts);
-            println!("Pipelines:\n ✓ Guides\n ✓ API\n · Blog post");
+            println!("Pipelines:\n ✓ Guides\n ✓ API\n · Blog post\n · Glitch");
             crate::projects::blog_post::run();
-            println!("Pipelines:\n ✓ Guides\n ✓ API\n ✓ Blog post");
+            println!("Pipelines:\n ✓ Guides\n ✓ API\n ✓ Blog post\n · Glitch");
+            crate::projects::glitch::run(&mut dir, &opts);
+            println!("Pipelines:\n ✓ Guides\n ✓ API\n ✓ Blog post\n ✓ Glitch");
         }
     };
-
-    println!("Finished!");
 }

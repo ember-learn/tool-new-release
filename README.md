@@ -7,9 +7,9 @@ At the moment, the following steps of the [learning team process](https://github
 1. - [x] Guides
 2. - [x] API documentation
 3. - [x] Release blog post
-4. - [ ] Release pages
+4. - [x] Release pages
 5. - [x] Glitch Ember starter
-6. - [ ] Ember Wikipedia
+6. - [x] Ember Wikipedia
 
 ## Prerequisites
 

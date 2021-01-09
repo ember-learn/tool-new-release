@@ -13,22 +13,25 @@ pub fn run(mut dir: &mut PathBuf, opts: &Opts) {
     crate::repo::Repo {
         organization: "ember-learn",
         project: "ember-jsonapi-docs",
+        url: None
     }
     .clone(&mut dir);
     crate::repo::Repo {
         organization: "emberjs",
         project: "ember.js",
+        url: None
     }
     .clone(&mut dir);
     crate::repo::Repo {
         organization: "emberjs",
         project: "data",
+        url: None
     }
     .clone(&mut dir);
 
     prompt(TaskType::Automated, "Installing node dependencies");
     dir.push("ember-jsonapi-docs");
-    if opts.dry_run {
+    if !opts.dry_run {
         process::Command::new("yarn")
             .current_dir(&dir)
             .arg("install")
@@ -39,8 +42,8 @@ pub fn run(mut dir: &mut PathBuf, opts: &Opts) {
     }
 
     prompt(TaskType::Automated, "Generating API documentation…");
-    let vars = get_env_vars();
-    if opts.dry_run {
+    let vars = crate::utils::heroku_env_vars("api-viewer-json-docs-generator");
+    if !opts.dry_run {
         process::Command::new("yarn")
             .current_dir(&dir)
             .envs(vars)
@@ -60,27 +63,6 @@ pub fn run(mut dir: &mut PathBuf, opts: &Opts) {
 // we don't consider failure to remove the direcotry to be fatal.
 fn clean_temporary_files(dir: &PathBuf) {
     if let Err(_) = std::fs::remove_dir_all(dir) {}
-}
-
-fn get_env_vars() -> Vec<(String, String)> {
-    prompt(TaskType::Automated, "Fetching env vars from heroku");
-
-    let heroku_vars = std::process::Command::new("heroku")
-        // .current_dir(&dir)
-        .arg("config")
-        .arg("-s")
-        .args(&["-a", "api-viewer-json-docs-generator"])
-        .output()
-        .expect("Could not retrieve env vars.");
-    let str = String::from_utf8(heroku_vars.stdout.to_owned()).unwrap();
-
-    let mut res = vec![];
-    for line in str.trim().split("\n") {
-        let mut x = line.split("=").collect::<Vec<&str>>().into_iter();
-        res.push((x.next().unwrap().to_owned(), x.next().unwrap().to_owned()));
-    }
-
-    res
 }
 
 // Checks if heroku-cli is installed, and  then  checks if user is logged in.

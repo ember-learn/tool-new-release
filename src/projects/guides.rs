@@ -13,6 +13,7 @@ pub fn run(mut dir: &mut PathBuf, opts: &crate::Opts) {
         crate::repo::Repo {
             organization: "ember-learn",
             project: "guides-source",
+            url: None
         }
         .clone(&mut dir);
     }

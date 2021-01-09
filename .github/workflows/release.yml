@@ -100,6 +100,17 @@ jobs:
       - name: Install musl
         run: |
           sudo apt-get install musl-tools
+      - name: Get release download URL
+        uses: actions/download-artifact@v1
+        with:
+          name: artifacts
+          path: artifacts
+      - name: Set release upload URL and release version
+        shell: bash
+        run: |
+          release_upload_url="$(cat artifacts/release-upload-url)"
+          echo "RELEASE_UPLOAD_URL=$release_upload_url" >> $GITHUB_ENV
+          echo "release upload url: $RELEASE_UPLOAD_URL"
       - uses: actions-rs/cargo@v1
         with:
           command: build

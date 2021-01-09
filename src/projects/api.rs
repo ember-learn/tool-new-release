@@ -28,7 +28,7 @@ pub fn run(mut dir: &mut PathBuf, opts: &Opts) {
 
     prompt(TaskType::Automated, "Installing node dependencies");
     dir.push("ember-jsonapi-docs");
-    if opts.dry_run {
+    if !opts.dry_run {
         process::Command::new("yarn")
             .current_dir(&dir)
             .arg("install")
@@ -40,6 +40,7 @@ pub fn run(mut dir: &mut PathBuf, opts: &Opts) {
 
     prompt(TaskType::Automated, "Generating API documentation…");
     let vars = crate::utils::heroku_env_vars("api-viewer-json-docs-generator");
+    if !opts.dry_run {
         process::Command::new("yarn")
             .current_dir(&dir)
             .envs(vars)

@@ -9,7 +9,7 @@ At the moment, the following steps of the [learning team process](https://github
 3. - [x] Release blog post
 4. - [x] Release pages
 5. - [x] Glitch Ember starter
-6. - [ ] Ember Wikipedia
+6. - [x] Ember Wikipedia
 
 ## Prerequisites
 

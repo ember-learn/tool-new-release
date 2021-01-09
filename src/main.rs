@@ -5,6 +5,7 @@ mod projects {
     pub mod glitch;
     pub mod guides;
     pub mod release_pages;
+    pub mod wikipedia;
 }
 mod repo;
 mod utils;
@@ -16,7 +17,8 @@ arg_enum! {
         Api,
         BlogPost,
         ReleasePages,
-        Glitch
+        Glitch,
+        Wikipedia
     }
 }
 
@@ -65,18 +67,25 @@ fn main() {
             crate::projects::glitch::run(&mut dir, &opts);
             println!("Pipelines:\n ✓ Glitch");
         }
+        Some(Project::Wikipedia) => {
+            println!("Pipelines:\n · Release pages\n");
+            crate::projects::wikipedia::run();
+            println!("Pipelines:\n ✓ Release pages");
+        }
         None => {
-            println!("Pipelines:\n · Guides\n · API\n · Blog post\n · Release pages\n · Glitch");
+            println!("Pipelines:\n · Guides\n · API\n · Blog post\n · Release pages\n · Glitch\n · Wikipedia");
             crate::projects::guides::run(&mut dir, &opts);
-            println!("Pipelines:\n ✓ Guides\n · API\n · Blog post\n · Release pages\n · Glitch");
+            println!("Pipelines:\n ✓ Guides\n · API\n · Blog post\n · Release pages\n · Glitch\n · Wikipedia");
             crate::projects::api::run(&mut dir, &opts);
-            println!("Pipelines:\n ✓ Guides\n ✓ API\n · Blog post\n · Release pages\n · Glitch");
+            println!("Pipelines:\n ✓ Guides\n ✓ API\n · Blog post\n · Release pages\n · Glitch\n · Wikipedia");
             crate::projects::blog_post::run();
-            println!("Pipelines:\n ✓ Guides\n ✓ API\n ✓ Blog post\n · Release pages\n · Glitch");
+            println!("Pipelines:\n ✓ Guides\n ✓ API\n ✓ Blog post\n · Release pages\n · Glitch\n · Wikipedia");
             crate::projects::release_pages::run();
-            println!("Pipelines:\n ✓ Guides\n ✓ API\n ✓ Blog post\n ✓ Release pages\n · Glitch");
+            println!("Pipelines:\n ✓ Guides\n ✓ API\n ✓ Blog post\n ✓ Release pages\n · Glitch\n · Wikipedia");
             crate::projects::glitch::run(&mut dir, &opts);
-            println!("Pipelines:\n ✓ Guides\n ✓ API\n ✓ Blog post\n ✓ Release pages\n ✓ Glitch");
+            println!("Pipelines:\n ✓ Guides\n ✓ API\n ✓ Blog post\n ✓ Release pages\n ✓ Glitch\n · Wikipedia");
+            crate::projects::wikipedia::run();
+            println!("Pipelines:\n ✓ Guides\n ✓ API\n ✓ Blog post\n ✓ Release pages\n ✓ Glitch\n ✓ Wikipedia");
         }
     };
 }

@@ -68,9 +68,9 @@ fn main() {
             println!("Pipelines:\n ✓ Glitch");
         }
         Some(Project::Wikipedia) => {
-            println!("Pipelines:\n · Release pages\n");
+            println!("Pipelines:\n · Wikipedia\n");
             crate::projects::wikipedia::run();
-            println!("Pipelines:\n ✓ Release pages");
+            println!("Pipelines:\n ✓ Wikipedia");
         }
         None => {
             println!("Pipelines:\n · Guides\n · API\n · Blog post\n · Release pages\n · Glitch\n · Wikipedia");

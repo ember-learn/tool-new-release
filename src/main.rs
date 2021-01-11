@@ -1,4 +1,5 @@
 use structopt::{clap::arg_enum, StructOpt};
+use utils::prompt;
 mod projects {
     pub mod api;
     pub mod blog_post;
@@ -40,6 +41,21 @@ pub struct Opts {
 fn main() {
     let mut dir = tempfile::tempdir().unwrap().into_path();
     let opts = Opts::from_args();
+
+    println!(
+        "Ember Core Learning team release process.
+
+You will be presented with instructions.
+There will be some interactive and manual steps, so please read the instructions carefully.
+
+Legend:
+* {} - User input will be required for this task
+* {} - This step is automated
+",
+        utils::TaskType::Manual,
+        utils::TaskType::Automated
+    );
+    prompt(utils::TaskType::Manual, "Ready to start?");
 
     match opts.project {
         Some(Project::Guides) => {

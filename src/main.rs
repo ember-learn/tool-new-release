@@ -1,5 +1,7 @@
+use std::{path::Path, process::exit};
+
 use structopt::{clap::arg_enum, StructOpt};
-use utils::prompt;
+use utils::TaskType;
 mod projects {
     pub mod api;
     pub mod blog_post;
@@ -8,7 +10,7 @@ mod projects {
     pub mod release_pages;
     pub mod wikipedia;
 }
-mod repo;
+mod clone;
 mod utils;
 
 arg_enum! {
@@ -23,6 +25,7 @@ arg_enum! {
     }
 }
 
+/// Ember Learning team release helper.
 #[derive(Debug, StructOpt)]
 pub struct Opts {
     #[structopt(short, long, possible_values = &Project::variants(), case_insensitive = true)]
@@ -33,39 +36,43 @@ pub struct Opts {
     /// Useful for understanding all the necessary steps, or when working on the pipeline itself.
     #[structopt(long)]
     dry_run: bool,
-
-    #[structopt(short, long)]
-    version: String,
 }
 
 fn main() {
-    let mut dir = tempfile::tempdir().unwrap().into_path();
+    let temp = tempfile::tempdir().unwrap();
+    let dir: &Path = temp.path();
     let opts = Opts::from_args();
 
-    println!(
-        "Ember Core Learning team release process.
+    println!("-> {:?} | {:?}", temp.path(), dir.to_str());
 
-You will be presented with instructions.
-There will be some interactive and manual steps, so please read the instructions carefully.
+    intro();
+    let versions = crate::utils::CurrentVersions::new();
 
-Legend:
-* {} - User input will be required for this task
-* {} - This step is automated
-",
-        utils::TaskType::Manual,
-        utils::TaskType::Automated
-    );
-    prompt(utils::TaskType::Manual, "Ready to start?");
+    if !dialoguer::Confirm::new()
+        .with_prompt(format!(
+            "{} Current version: {}.\nDeploy {}?",
+            TaskType::Manual,
+            versions.deployed,
+            versions.target
+        ))
+        .default(false)
+        .interact()
+        .unwrap()
+    {
+        println!("Exiting…");
+        temp.close().unwrap();
+        exit(0);
+    }
 
     match opts.project {
         Some(Project::Guides) => {
             println!("Pipelines:\n · Guides");
-            crate::projects::guides::run(&mut dir, &opts);
+            crate::projects::guides::run(&dir, &opts);
             println!("Pipelines:\n ✓ Guides");
         }
         Some(Project::Api) => {
             println!("Pipelines:\n · API");
-            crate::projects::api::run(&mut dir, &opts);
+            crate::projects::api::run(&dir, &opts);
             println!("Pipelines:\n ✓ API");
         }
         Some(Project::BlogPost) => {
@@ -80,7 +87,7 @@ Legend:
         }
         Some(Project::Glitch) => {
             println!("Pipelines:\n · Glitch\n");
-            crate::projects::glitch::run(&mut dir, &opts);
+            crate::projects::glitch::run(&dir, &opts, versions);
             println!("Pipelines:\n ✓ Glitch");
         }
         Some(Project::Wikipedia) => {
@@ -90,18 +97,36 @@ Legend:
         }
         None => {
             println!("Pipelines:\n · Guides\n · API\n · Blog post\n · Release pages\n · Glitch\n · Wikipedia");
-            crate::projects::guides::run(&mut dir, &opts);
+            crate::projects::guides::run(&dir, &opts);
             println!("Pipelines:\n ✓ Guides\n · API\n · Blog post\n · Release pages\n · Glitch\n · Wikipedia");
-            crate::projects::api::run(&mut dir, &opts);
+            crate::projects::api::run(&dir, &opts);
             println!("Pipelines:\n ✓ Guides\n ✓ API\n · Blog post\n · Release pages\n · Glitch\n · Wikipedia");
             crate::projects::blog_post::run();
             println!("Pipelines:\n ✓ Guides\n ✓ API\n ✓ Blog post\n · Release pages\n · Glitch\n · Wikipedia");
             crate::projects::release_pages::run();
             println!("Pipelines:\n ✓ Guides\n ✓ API\n ✓ Blog post\n ✓ Release pages\n · Glitch\n · Wikipedia");
-            crate::projects::glitch::run(&mut dir, &opts);
+            crate::projects::glitch::run(&dir, &opts, versions);
             println!("Pipelines:\n ✓ Guides\n ✓ API\n ✓ Blog post\n ✓ Release pages\n ✓ Glitch\n · Wikipedia");
             crate::projects::wikipedia::run();
             println!("Pipelines:\n ✓ Guides\n ✓ API\n ✓ Blog post\n ✓ Release pages\n ✓ Glitch\n ✓ Wikipedia");
         }
     };
+
+    temp.close().unwrap();
+}
+
+fn intro() {
+    println!(
+        "Ember Core Learning team release process.
+
+You will be presented with instructions.
+There will be some interactive and manual steps, so please read the instructions carefully.
+
+Legend:
+* {} - User input will be required for this task
+* {} - This step is automated
+",
+        utils::TaskType::Manual,
+        utils::TaskType::Automated
+    );
 }

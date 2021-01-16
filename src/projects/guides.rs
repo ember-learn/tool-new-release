@@ -1,26 +1,18 @@
 use crate::utils::{prompt, TaskType};
-use std::{path::PathBuf, process};
+use std::{path::Path, process};
 
-pub fn run(mut dir: &mut PathBuf, opts: &crate::Opts) {
+pub fn run(dir: &Path, opts: &crate::Opts) {
     prompt(
         TaskType::Manual,
         "Check for pending PRs: https://github.com/ember-learn/guides-source/pulls",
     );
 
-    if !opts.dry_run {
-        crate::repo::Repo {
-            organization: "ember-learn",
-            project: "guides-source",
-            url: None
-        }
-        .clone(&mut dir);
-    }
+    let (_, guides_source_dir) = crate::clone::github(dir, "ember-learn", "guides-source");
 
     prompt(TaskType::Automated, "Installing node dependencies");
-    dir.push("guides-source");
     if !opts.dry_run {
         process::Command::new("npm")
-            .current_dir(&dir)
+            .current_dir(&guides_source_dir)
             .arg("install")
             .spawn()
             .expect("Could not start process")
@@ -31,7 +23,7 @@ pub fn run(mut dir: &mut PathBuf, opts: &crate::Opts) {
     prompt(TaskType::Automated, "Creating new version of guides");
     if !opts.dry_run {
         process::Command::new("npm")
-            .current_dir(&dir)
+            .current_dir(&guides_source_dir)
             .arg("run")
             .arg("release:guides:minor")
             .spawn()

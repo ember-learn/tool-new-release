@@ -1,9 +1,8 @@
 use core::panic;
 use git2::{Direction, PushOptions, Repository};
-use std::{
-    io::Write,
-    path::{PathBuf},
-};
+use std::{io::Write, path::PathBuf};
+
+use crate::utils::prompt;
 
 static STATIC_STR: &str = "
     <!-- include the Glitch button to show what the webpage is about and
@@ -12,56 +11,21 @@ static STATIC_STR: &str = "
     <script src=\"https://button.glitch.me/button.js\"></script>
 ";
 
-pub fn run(mut dir: &mut std::path::PathBuf, opts: &crate::Opts) {
-    let version = &format!("v{}", &opts.version);
-    let _ember_new_repo = crate::repo::Repo {
-        organization: "ember-cli",
-        project: "ember-new-output",
-        url: None,
-    }
-    .clone(&mut dir);
-    let mut ember_new_dir = dir.clone();
-    ember_new_dir.push("ember-new-output");
-
-    let glitch_repo_url = get_glitch_repo_url();
-    let glitch_repo = crate::repo::Repo {
-        organization: "ember-learn",
-        project: "glitch-emberjs",
-        url: Some(&glitch_repo_url),
-    }
-    .clone(&mut dir);
-    let mut glitch_dir = dir.clone();
-    glitch_dir.push("glitch-emberjs");
+pub fn run(dir: &std::path::Path, opts: &crate::Opts, version: crate::utils::CurrentVersions) {
+    let version = &format!("v{}", version.deployed);
 
     if !opts.dry_run {
-        // check out correct branch on ember-new-output
-        std::process::Command::new("git")
-            .current_dir(&ember_new_dir)
-            .args(&["checkout", version])
-            .spawn()
-            .unwrap()
-            .wait()
-            .expect("git status");
+        prompt(crate::utils::TaskType::Manual, "Cloning Glitch starter app");
+        let glitch_repo_url = get_glitch_repo_url();
+        let (glitch_repo, glitch_dir) = crate::clone::glitch(&dir, &glitch_repo_url);
 
-        // copy over to glitch repo
-        let origin_files: Vec<PathBuf> = rfm::ls(&ember_new_dir).unwrap();
-        let origin_files = origin_files
-            .iter()
-            .filter(|&x| !x.ends_with(".git"))
-            .collect::<Vec<&_>>();
-
-        let glitch_to_clean = rfm::ls(&glitch_dir).unwrap();
-        let glitch_to_clean = glitch_to_clean
-            .iter()
-            .filter(|&x| !x.ends_with(".git"))
-            .collect::<Vec<&_>>();
-        rfm::rm(&glitch_to_clean).unwrap();
-        rfm::cp(&origin_files, &glitch_dir).unwrap();
-
-        // update glitch repo
+        prompt(
+            crate::utils::TaskType::Manual,
+            "Updating Glitch app with content from ember-new-output",
+        );
         update_repo_files(&glitch_dir, version);
-        update_package_json(&mut glitch_dir);
-        update_index_html(&mut glitch_dir);
+        update_package_json(glitch_dir.clone());
+        update_index_html(glitch_dir.clone());
 
         // stage modified files
         let mut index = glitch_repo.index().unwrap();
@@ -87,16 +51,21 @@ pub fn run(mut dir: &mut std::path::PathBuf, opts: &crate::Opts) {
             )
             .unwrap();
 
-        std::process::Command::new("git")
-            .current_dir(&glitch_dir)
-            .args(&["push"])
-            .spawn()
-            .unwrap()
-            .wait()
-            .expect("git status");
+        prompt(crate::utils::TaskType::Manual, "Pushing changes to Glitch");
+        push_to_glitch(glitch_dir);
 
         println!("\n");
     }
+}
+
+fn push_to_glitch(dir: PathBuf) {
+    std::process::Command::new("git")
+        .current_dir(&dir)
+        .args(&["push"])
+        .spawn()
+        .unwrap()
+        .wait()
+        .expect("git status");
 }
 
 fn get_glitch_repo_url() -> String {
@@ -106,7 +75,7 @@ fn get_glitch_repo_url() -> String {
     glitch_repo_url.replace("'", "")
 }
 
-fn update_package_json(path: &mut PathBuf) {
+fn update_package_json(mut path: PathBuf) {
     path.push("package.json");
     let original_content = std::fs::read_to_string(&path).unwrap();
     let modified_content = original_content.replace("ember serve", "ember serve -p 4200");
@@ -116,7 +85,7 @@ fn update_package_json(path: &mut PathBuf) {
     path.pop();
 }
 
-fn update_index_html(path: &mut PathBuf) {
+fn update_index_html(mut path: PathBuf) {
     path.push("app/index.html");
     let mut content = std::fs::read_to_string(&path).unwrap();
     let i = content.find("  </body>").unwrap();
@@ -143,7 +112,7 @@ fn push_to_git(repo: &Repository) -> std::result::Result<(), git2::Error> {
         println!("CRED->{:?}", _allowed_types);
         git2::Cred::username(username_from_url.unwrap())
     });
-    cb.certificate_check(|cert, str| {
+    cb.certificate_check(|_cert, str| {
         println!("CERT {:?}", str);
         true
     });
@@ -157,8 +126,8 @@ fn push_to_git(repo: &Repository) -> std::result::Result<(), git2::Error> {
 }
 
 fn update_repo_files(glitch_dir: &PathBuf, version: &str) {
-    let mut zip_file = download_ember_new(version);
-    unpack_ember_new_output(&mut zip_file, &glitch_dir);
+    let zip_file = download_ember_new(version);
+    unpack_ember_new_output(&zip_file, &glitch_dir);
 }
 
 fn download_ember_new(version: &str) -> PathBuf {
@@ -181,7 +150,7 @@ fn download_ember_new(version: &str) -> PathBuf {
     return dir;
 }
 
-fn unpack_ember_new_output<'a>(zip_path: &mut PathBuf, glitch: &PathBuf) {
+fn unpack_ember_new_output(zip_path: &PathBuf, glitch: &PathBuf) {
     let file = std::fs::File::open(&zip_path).unwrap();
     let mut archive = zip::ZipArchive::new(file).unwrap();
 

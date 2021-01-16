@@ -1,37 +1,22 @@
-use crate::{Opts, utils::{prompt, TaskType}};
-use std::{path::PathBuf, process};
+use crate::{
+    utils::{prompt, TaskType},
+    Opts,
+};
+use std::process;
 
-pub fn run(mut dir: &mut PathBuf, opts: &Opts) {
+pub fn run(dir: &std::path::Path, opts: &Opts) {
     if cfg!(windows) {
         check_heroku_cli_windows();
     } else {
         check_heroku_cli();
     }
 
-    crate::repo::Repo {
-        organization: "ember-learn",
-        project: "ember-jsonapi-docs",
-        url: None
-    }
-    .clone(&mut dir);
-    crate::repo::Repo {
-        organization: "emberjs",
-        project: "ember.js",
-        url: None
-    }
-    .clone(&mut dir);
-    crate::repo::Repo {
-        organization: "emberjs",
-        project: "data",
-        url: None
-    }
-    .clone(&mut dir);
+    let (_, jsonapi_docs_dir) = crate::clone::github(dir, "ember-learn", "ember-jsonapi-docs");
 
     prompt(TaskType::Automated, "Installing node dependencies");
-    dir.push("ember-jsonapi-docs");
     if !opts.dry_run {
         process::Command::new("yarn")
-            .current_dir(&dir)
+            .current_dir(&jsonapi_docs_dir)
             .arg("install")
             .spawn()
             .expect("Could not spawn new process")
@@ -43,7 +28,7 @@ pub fn run(mut dir: &mut PathBuf, opts: &Opts) {
     let vars = crate::utils::heroku_env_vars("api-viewer-json-docs-generator");
     if !opts.dry_run {
         process::Command::new("yarn")
-            .current_dir(&dir)
+            .current_dir(&jsonapi_docs_dir)
             .envs(vars)
             .args(&["run", "start", "--sync"])
             .spawn()
@@ -51,16 +36,6 @@ pub fn run(mut dir: &mut PathBuf, opts: &Opts) {
             .wait()
             .expect("Could not compile API documentation");
     }
-    dir.pop();
-
-    clean_temporary_files(&dir);
-}
-
-// Here we try to clean the cloned repositories.
-// Since we are operating inside a temporary directory,
-// we don't consider failure to remove the direcotry to be fatal.
-fn clean_temporary_files(dir: &PathBuf) {
-    if let Err(_) = std::fs::remove_dir_all(dir) {}
 }
 
 // Checks if heroku-cli is installed, and  then  checks if user is logged in.

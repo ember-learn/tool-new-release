@@ -1,3 +1,5 @@
+use semver::Version;
+use serde::{Deserialize, Serialize};
 use std::io;
 use std::io::prelude::*;
 
@@ -67,4 +69,51 @@ pub fn heroku_env_vars(project: &str) -> Vec<(String, String)> {
     }
 
     res
+}
+
+#[derive(Serialize, Deserialize)]
+struct GuidesVersionsAttributes {
+    #[serde(rename = "all-versions")]
+    all_versions: Vec<String>,
+    #[serde(rename = "current-version")]
+    current_version: String,
+    #[serde(rename = "lts-versions")]
+    lts_versions: Vec<String>,
+}
+
+#[derive(Serialize, Deserialize)]
+struct GuidesVersionsData {
+    #[serde(rename = "type")]
+    data_type: String,
+    id: String,
+    attributes: GuidesVersionsAttributes,
+}
+
+#[derive(Serialize, Deserialize)]
+struct GuidesVersions {
+    data: GuidesVersionsData,
+}
+
+pub struct CurrentVersions {
+    pub deployed: Version,
+    pub target: Version,
+}
+
+impl CurrentVersions {
+    pub fn new() -> Self {
+        let versions: GuidesVersions =
+            reqwest::blocking::get("https://guides.emberjs.com/content/versions.json")
+                .unwrap()
+                .json()
+                .unwrap();
+        let mut prefixed_version = versions.data.attributes.current_version.chars();
+        prefixed_version.next();
+        let version = prefixed_version.as_str();
+
+        let deployed = semver::Version::parse(version).unwrap();
+        let mut target = deployed.clone();
+        target.increment_minor();
+
+        Self { deployed, target }
+    }
 }

@@ -43,10 +43,10 @@ pub fn run(dir: &std::path::Path, opts: &Opts) {
 fn check_heroku_cli_windows() {
     prompt(TaskType::Automated, "Checking heroku-cli");
 
-    if let Err(_) = std::process::Command::new("cmd")
+    if std::process::Command::new("cmd")
         .args(&["/C", "heroku"])
         .stdout(std::process::Stdio::null())
-        .status()
+        .status().is_err()
     {
         println!("heroku-cli not found. Please install and try again: https://devcenter.heroku.com/articles/heroku-cli");
         std::process::exit(1);
@@ -75,9 +75,10 @@ fn check_heroku_cli_windows() {
 fn check_heroku_cli() {
     prompt(TaskType::Automated, "Checking heroku-cli");
 
-    if let Err(_) = std::process::Command::new("heroku")
+    if std::process::Command::new("heroku")
         .stdout(std::process::Stdio::null())
         .status()
+        .is_err()
     {
         println!("heroku-cli not found. Please install and try again: https://devcenter.heroku.com/articles/heroku-cli");
         std::process::exit(1);

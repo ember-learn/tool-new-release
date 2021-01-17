@@ -43,8 +43,6 @@ fn main() {
     let dir: &Path = temp.path();
     let opts = Opts::from_args();
 
-    println!("-> {:?} | {:?}", temp.path(), dir.to_str());
-
     intro();
     let versions = crate::utils::CurrentVersions::new();
 

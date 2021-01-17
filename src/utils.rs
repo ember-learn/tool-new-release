@@ -47,7 +47,7 @@ pub fn prompt(task_type: TaskType, description: &str) {
     if let TaskType::Manual = task_type {
         crate::utils::pause();
     }
-    print!("\n");
+    println!();
 }
 
 pub fn heroku_env_vars(project: &str) -> Vec<(String, String)> {
@@ -60,11 +60,11 @@ pub fn heroku_env_vars(project: &str) -> Vec<(String, String)> {
         .args(&["-a", project])
         .output()
         .expect("Could not retrieve env vars.");
-    let str = String::from_utf8(heroku_vars.stdout.to_owned()).unwrap();
+    let str = String::from_utf8(heroku_vars.stdout).unwrap();
 
     let mut res = vec![];
-    for line in str.trim().split("\n") {
-        let mut x = line.split("=").collect::<Vec<&str>>().into_iter();
+    for line in str.trim().split('\n') {
+        let mut x = line.split('=').collect::<Vec<&str>>().into_iter();
         res.push((x.next().unwrap().to_owned(), x.next().unwrap().to_owned()));
     }
 

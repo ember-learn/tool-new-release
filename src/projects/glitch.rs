@@ -80,7 +80,7 @@ fn update_package_json(mut path: PathBuf) {
     let original_content = std::fs::read_to_string(&path).unwrap();
     let modified_content = original_content.replace("ember serve", "ember serve -p 4200");
     let mut file = std::fs::File::create(&path).unwrap();
-    file.write(modified_content.as_bytes())
+    file.write_all(modified_content.as_bytes())
         .expect("Could not update package.json");
     path.pop();
 }
@@ -102,7 +102,7 @@ fn push_to_git(repo: &Repository) -> std::result::Result<(), git2::Error> {
     let mut cb = git2::RemoteCallbacks::new();
     cb.push_update_reference(|refname, status| {
         println!("-> {}", refname);
-        if let Some(_) = status {
+        if status.is_some() {
             panic!("Could not push to remote");
         } else {
             Ok(())
@@ -147,7 +147,7 @@ fn download_ember_new(version: &str) -> PathBuf {
 
     dir.push(format!("{}.zip", &version));
 
-    return dir;
+    dir
 }
 
 fn unpack_ember_new_output(zip_path: &PathBuf, glitch: &PathBuf) {

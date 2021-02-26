@@ -1,5 +1,6 @@
 use core::panic;
 use git2::{Direction, PushOptions, Repository};
+use semver::Version;
 use std::{io::Write, path::PathBuf};
 
 use crate::utils::prompt;
@@ -11,8 +12,8 @@ static STATIC_STR: &str = "
     <script src=\"https://button.glitch.me/button.js\"></script>
 ";
 
-pub fn run(dir: &std::path::Path, opts: &crate::Opts, version: crate::utils::CurrentVersions) {
-    let version = &format!("v{}", version.deployed);
+pub fn run(dir: &std::path::Path, opts: &crate::Opts, version: &Version) {
+    let version = &format!("v{}", version);
 
     if !opts.dry_run {
         prompt(crate::utils::TaskType::Manual, "Cloning Glitch starter app");

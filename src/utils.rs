@@ -1,7 +1,8 @@
 use semver::Version;
 use serde::{Deserialize, Serialize};
-use std::io;
-use std::io::prelude::*;
+use std::io::{self, Read, Write};
+use std::fmt::Display;
+
 
 #[allow(dead_code)]
 pub fn read_input(message: &str) -> String {
@@ -25,9 +26,6 @@ pub fn pause() {
     // Read a single byte and discard
     let _ = stdin.read(&mut [0u8]).unwrap();
 }
-
-use std::fmt::Display;
-
 pub enum TaskType {
     Automated,
     Manual,
@@ -100,7 +98,7 @@ pub struct CurrentVersions {
 }
 
 impl CurrentVersions {
-    pub fn new() -> Self {
+    pub fn from_guides() -> Self {
         let versions: GuidesVersions =
             reqwest::blocking::get("https://guides.emberjs.com/content/versions.json")
                 .unwrap()
@@ -112,6 +110,14 @@ impl CurrentVersions {
 
         let deployed = semver::Version::parse(version).unwrap();
         let mut target = deployed.clone();
+        target.increment_minor();
+
+        Self { deployed, target }
+    }
+
+    pub fn from_versions(versions: &Self) -> Self {
+        let deployed = versions.target.clone();
+        let mut target = versions.target.clone();
         target.increment_minor();
 
         Self { deployed, target }

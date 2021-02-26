@@ -37,16 +37,17 @@ pub fn run(dir: &Path, opts: &crate::Opts) {
         "Confirm new guides version is deployed before proceeding",
     );
     prompt(TaskType::Manual, "You are super duper sure it's deployed?");
-    publish_algolia(&opts);
+    publish_algolia(&opts, &guides_source_dir);
 }
 
 /// This function runs the npm script in the project that
 /// builds search index and then deploys.
-fn publish_algolia(opts: &crate::Opts) {
+fn publish_algolia(opts: &crate::Opts, dir: &std::path::PathBuf) {
     prompt(TaskType::Automated, "Publishing Algolia index");
 
     if !opts.dry_run {
         process::Command::new("npm")
+            .current_dir(&dir)
             .arg("run")
             .arg("release:search")
             .spawn()

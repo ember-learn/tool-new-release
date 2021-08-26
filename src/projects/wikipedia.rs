@@ -7,20 +7,13 @@ use utils::TaskType;
 use crate::utils::{self, prompt};
 
 pub fn run() {
-    let (stable_version, stable_date) = get_version_modified_pair("ember-source@latest");
     let (preview_version, preview_date) = get_version_modified_pair("ember-source@beta");
-    let current_date = chrono::offset::Utc::now().date().format("%d %B %Y");
 
     let infobox = format!(
-        "| latest release version = {stable_version}
-| latest release date    = {{{{Start date and age|{stable_date}}}}}<ref name=\"versions\">{{{{cite web|title=Releases · emberjs/ember.js|url=https://github.com/emberjs/ember.js/releases|website=[[GitHub]]|access-date={access_date}|language=en}}}}</ref>
-| latest preview version = {preview_version}
+        "| latest preview version = {preview_version}
 | latest preview date    = {{{{Start date and age|{preview_date}}}}}<ref name=\"versions\" />",
-        stable_version = stable_version,
-        stable_date = stable_date,
         preview_version = preview_version,
         preview_date = preview_date,
-        access_date = current_date
     );
 
     prompt(

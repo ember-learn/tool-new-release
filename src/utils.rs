@@ -98,10 +98,10 @@ pub struct CurrentVersions {
 }
 
 impl CurrentVersions {
-    pub fn from_guides() -> Self {
+    pub fn from_guides(major_version: bool) -> Self {
         let versions: GuidesVersions =
             reqwest::blocking::get("https://guides.emberjs.com/content/versions.json")
-                .unwrap()
+                .expect("Can't connect to Ember Guides' API")
                 .json()
                 .unwrap();
         let mut prefixed_version = versions.data.attributes.current_version.chars();
@@ -110,7 +110,13 @@ impl CurrentVersions {
 
         let deployed = semver::Version::parse(version).unwrap();
         let mut target = deployed.clone();
-        target.increment_minor();
+
+
+        if major_version {
+            target.increment_major();
+        } else {
+            target.increment_minor();
+        }
 
         Self { deployed, target }
     }

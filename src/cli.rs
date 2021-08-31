@@ -24,6 +24,10 @@ pub struct Opts {
     /// Useful for understanding all the necessary steps, or when working on the pipeline itself.
     #[structopt(long)]
     pub dry_run: bool,
+
+    /// Toggles
+    #[structopt(long)]
+    pub major_version: bool
 }
 
 pub fn ask_projects(pipeline: &crate::pipeline::Pipeline) -> Vec<usize> {
@@ -38,8 +42,8 @@ pub fn ask_projects(pipeline: &crate::pipeline::Pipeline) -> Vec<usize> {
     chosen_project_indices
 }
 
-pub fn ask_version() -> crate::utils::CurrentVersions {
-    let versions = crate::utils::CurrentVersions::from_guides();
+pub fn ask_version(major_version: bool) -> crate::utils::CurrentVersions {
+    let versions = crate::utils::CurrentVersions::from_guides(major_version);
     let chosen = dialoguer::Select::new()
         .default(1)
         .with_prompt("Pick version you wish to release")

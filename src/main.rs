@@ -22,7 +22,7 @@ fn main() {
     let opts = cli::Opts::from_args();
 
     crate::cli::intro();
-    let versions = crate::cli::ask_version();
+    let versions = crate::cli::ask_version(opts.major_version);
     let mut pipeline = pipeline::Pipeline::new();
     let chosen_project_indices = crate::cli::ask_projects(&pipeline);
     pipeline.run(chosen_project_indices, &dir, &opts, &versions);

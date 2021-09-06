@@ -9,7 +9,7 @@ pub fn run(version: &Version) {
         TaskType::Manual,
         "Mark current release done with `!release done blog`.",
     );
-    let deadline = ask_next_deadline(&version);
+    let deadline = ask_next_deadline(version);
 
     prompt(
         TaskType::Manual,

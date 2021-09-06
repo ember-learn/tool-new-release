@@ -1,7 +1,7 @@
 use core::panic;
 use git2::{Direction, PushOptions, Repository};
 use semver::Version;
-use std::{io::Write, path::PathBuf};
+use std::{io::Write, path::{Path, PathBuf}};
 
 use crate::utils::prompt;
 
@@ -18,7 +18,7 @@ pub fn run(dir: &std::path::Path, opts: &crate::Opts, version: &Version) {
     if !opts.dry_run {
         prompt(crate::utils::TaskType::Manual, "Cloning Glitch starter app");
         let glitch_repo_url = get_glitch_repo_url();
-        let (glitch_repo, glitch_dir) = crate::clone::glitch(&dir, &glitch_repo_url);
+        let (glitch_repo, glitch_dir) = crate::clone::glitch(dir, &glitch_repo_url);
 
         prompt(
             crate::utils::TaskType::Manual,
@@ -126,9 +126,9 @@ fn push_to_git(repo: &Repository) -> std::result::Result<(), git2::Error> {
     glitch.push(&["refs/heads/master"] as &[&str], Some(&mut opts))
 }
 
-fn update_repo_files(glitch_dir: &PathBuf, version: &str) {
+fn update_repo_files(glitch_dir: &Path, version: &str) {
     let zip_file = download_ember_new(version);
-    unpack_ember_new_output(&zip_file, &glitch_dir);
+    unpack_ember_new_output(&zip_file, glitch_dir);
 }
 
 fn download_ember_new(version: &str) -> PathBuf {
@@ -151,7 +151,7 @@ fn download_ember_new(version: &str) -> PathBuf {
     dir
 }
 
-fn unpack_ember_new_output(zip_path: &PathBuf, glitch: &PathBuf) {
+fn unpack_ember_new_output(zip_path: &Path, glitch: &Path) {
     let file = std::fs::File::open(&zip_path).unwrap();
     let mut archive = zip::ZipArchive::new(file).unwrap();
 
@@ -169,7 +169,7 @@ fn unpack_ember_new_output(zip_path: &PathBuf, glitch: &PathBuf) {
             Some(path) => path.to_owned(),
             None => continue,
         };
-        let mut output_path = glitch.clone();
+        let mut output_path = glitch.to_path_buf();
         output_path.push(file_path.strip_prefix(prefix).unwrap());
 
         if file.is_dir() {

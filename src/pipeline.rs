@@ -41,10 +41,10 @@ impl PipelineProject {
     pub fn run(&self, dir: &Path, opts: &Opts, versions: &utils::CurrentVersions) {
         match self.project {
             crate::cli::Project::Guides => {
-                crate::projects::guides::run(&dir, &opts);
+                crate::projects::guides::run(dir, opts);
             }
             crate::cli::Project::Api => {
-                crate::projects::api::run(&dir, &opts);
+                crate::projects::api::run(dir, opts);
             }
             crate::cli::Project::BlogPost => {
                 crate::projects::blog_post::run();
@@ -53,7 +53,7 @@ impl PipelineProject {
                 crate::projects::release_pages::run();
             }
             crate::cli::Project::Glitch => {
-                crate::projects::glitch::run(&dir, &opts, &versions.deployed);
+                crate::projects::glitch::run(dir, opts, &versions.deployed);
             }
             crate::cli::Project::Wikipedia => {
                 crate::projects::wikipedia::run();
@@ -117,7 +117,7 @@ impl Pipeline {
                     println!("➡{}\n", self);
 
                     let project = self.0.get_mut(i).unwrap();
-                    project.run(&dir, &opts, &versions);
+                    project.run(dir, opts, versions);
                     project.finished();
                 }
             }

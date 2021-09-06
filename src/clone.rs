@@ -9,14 +9,14 @@ pub fn github(
     let src = format!("https://github.com/{}/{}.git", organization, project);
 
     let dir = tempdir_in(root).unwrap().into_path();
-    let repo = git2::Repository::clone(&src.as_str(), &dir).unwrap();
+    let repo = git2::Repository::clone(src.as_str(), &dir).unwrap();
 
     (repo, dir)
 }
 
 pub fn glitch(root: &Path, src: &str) -> (git2::Repository, PathBuf) {
     let dir = tempdir_in(root).unwrap().into_path();
-    let repo = git2::Repository::clone(&src, &dir).unwrap();
+    let repo = git2::Repository::clone(src, &dir).unwrap();
 
     (repo, dir)
 }

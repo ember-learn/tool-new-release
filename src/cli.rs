@@ -50,12 +50,12 @@ pub fn ask_version(major_version: bool) -> crate::utils::CurrentVersions {
         .items(&[&versions.deployed, &versions.target])
         .interact()
         .unwrap();
-    let versions = match chosen {
+        
+    match chosen {
         0 => versions,
         1 => crate::utils::CurrentVersions::from_versions(&versions),
         _ => unreachable!(),
-    };
-    versions
+    }
 }
 
 pub fn intro() {

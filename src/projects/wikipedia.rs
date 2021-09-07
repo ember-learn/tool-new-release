@@ -8,12 +8,14 @@ use crate::utils::{self, prompt};
 
 pub fn run() {
     let (preview_version, preview_date) = get_version_modified_pair("ember-source@beta");
+    let today = chrono::offset::Local::today().format("%-d %B %Y");
 
     let infobox = format!(
         "| latest preview version = {preview_version}
-| latest preview date    = {{{{Start date and age|{preview_date}}}}}<ref name=\"versions\" />",
+| latest preview date    = {{{{Start date and age|{preview_date}}}}}<ref name=\"versions\">{{{{cite web|title=Releases · emberjs/ember.js|url=https://github.com/emberjs/ember.js/releases|website=[[GitHub]]|access-date={today}|language=en}}}}</ref>",
         preview_version = preview_version,
         preview_date = preview_date,
+        today = today
     );
 
     prompt(

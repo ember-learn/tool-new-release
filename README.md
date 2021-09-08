@@ -23,6 +23,7 @@ To run the entire release pipeline, do the following:
 - Go to the [releases page](https://github.com/ember-learn/tool-new-release/releases)
 - Find the latest release. Should be a draft called "draft".
 - Expand the assets and download the relevant one for your platform.
+- On macOS or linux, you need to modify permissions for the file you downloaded: `chmod +x <path to the download>`
 - If you are on macOS you will need to right-click and select "Open" to get around signage limitations
 
 ## How to use

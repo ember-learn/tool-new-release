@@ -6,7 +6,7 @@ use std::{
     path::{Path, PathBuf},
 };
 
-use crate::utils::prompt::{prompt, TaskType};
+use crate::utils::prompt::{automated, manual};
 
 static STATIC_STR: &str = "
     <!-- include the Glitch button to show what the webpage is about and
@@ -19,13 +19,11 @@ pub fn run(dir: &std::path::Path, opts: &crate::Opts, version: &Version) {
     let version = &format!("v{}", version);
 
     if !opts.dry_run {
-        prompt(TaskType::Manual, "Cloning Glitch starter app");
+        manual("Cloning Glitch starter app");
         let glitch_repo_url = get_glitch_repo_url();
         let (glitch_repo, glitch_dir) = crate::clone::glitch(dir, &glitch_repo_url);
 
-        prompt(
-            TaskType::Manual,
-            "Updating Glitch app with content from ember-new-output",
+        manual("Updating Glitch app with content from ember-new-output"
         );
         update_repo_files(&glitch_dir, version);
         update_package_json(glitch_dir.clone());
@@ -55,9 +53,7 @@ pub fn run(dir: &std::path::Path, opts: &crate::Opts, version: &Version) {
             )
             .unwrap();
 
-        prompt(
-            crate::utils::prompt::TaskType::Manual,
-            "Pushing changes to Glitch",
+        automated("Pushing changes to Glitch",
         );
         push_to_glitch(glitch_dir);
 

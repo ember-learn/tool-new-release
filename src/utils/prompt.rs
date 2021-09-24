@@ -34,10 +34,18 @@ impl Display for TaskType {
     }
 }
 
-pub fn prompt(task_type: TaskType, description: &str) {
+fn prompt(task_type: TaskType, description: &str) {
     println!("{} {}", task_type, description);
     if let TaskType::Manual = task_type {
         pause();
     }
     println!();
+}
+
+pub fn manual(description: &str) {
+    prompt(TaskType::Manual, description);
+}
+
+pub fn automated(description: &str) {
+    prompt(TaskType::Automated, description);
 }

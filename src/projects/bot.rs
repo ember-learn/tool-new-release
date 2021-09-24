@@ -1,16 +1,14 @@
-use crate::utils::prompt::{prompt, TaskType};
+use crate::utils::prompt::manual;
 use semver::Version;
 
 pub fn run(version: &Version) {
-    prompt(TaskType::Manual, "Go to #core-meta on the Ember Discord.");
-    prompt(
-        TaskType::Manual,
+    manual("Go to #core-meta on the Ember Discord.");
+    manual(
         "Mark current release done with `!release done blog`.",
     );
     let deadline = ask_next_deadline(version);
 
-    prompt(
-        TaskType::Manual,
+    manual(
         format!(
             "Schedule next release with `!release next {} {}`.",
             version, deadline

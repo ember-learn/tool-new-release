@@ -1,7 +1,5 @@
 pub fn get_env_vars(project: &str) -> Vec<(String, String)> {
-    crate::utils::prompt::prompt(
-        crate::utils::prompt::TaskType::Automated,
-        "Fetching env vars from heroku",
+    crate::utils::prompt::automated("Fetching env vars from heroku",
     );
 
     let heroku_vars = std::process::Command::new("heroku")

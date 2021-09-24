@@ -1,12 +1,10 @@
-use crate::utils::prompt::{prompt, TaskType};
+use crate::utils::prompt::{manual};
 
 pub fn run() {
-    prompt(
-        TaskType::Manual,
+    manual(
         "Go to https://github.com/ember-learn/ember-blog/pulls.",
     );
-    prompt(
-        TaskType::Manual,
+    manual(
         "Merge the relevant blog post if all the teams have approved it.",
     );
 }

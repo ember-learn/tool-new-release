@@ -1,7 +1,5 @@
-use crate::{
-    utils::{prompt, TaskType},
-    Opts,
-};
+use crate::utils::prompt::{prompt, TaskType};
+use crate::Opts;
 use std::process;
 
 pub fn run(dir: &std::path::Path, opts: &Opts) {
@@ -25,7 +23,7 @@ pub fn run(dir: &std::path::Path, opts: &Opts) {
     }
 
     prompt(TaskType::Automated, "Generating API documentation…");
-    let vars = crate::utils::heroku_env_vars("api-viewer-json-docs-generator");
+    let vars = crate::utils::heroku::get_env_vars("api-viewer-json-docs-generator");
     if !opts.dry_run {
         process::Command::new("yarn")
             .current_dir(&jsonapi_docs_dir)
@@ -46,7 +44,8 @@ fn check_heroku_cli_windows() {
     if std::process::Command::new("cmd")
         .args(&["/C", "heroku"])
         .stdout(std::process::Stdio::null())
-        .status().is_err()
+        .status()
+        .is_err()
     {
         println!("heroku-cli not found. Please install and try again: https://devcenter.heroku.com/articles/heroku-cli");
         std::process::exit(1);

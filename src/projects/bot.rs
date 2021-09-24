@@ -1,7 +1,5 @@
+use crate::utils::prompt::{prompt, TaskType};
 use semver::Version;
-use utils::TaskType;
-
-use crate::utils::{self, prompt};
 
 pub fn run(version: &Version) {
     prompt(TaskType::Manual, "Go to #core-meta on the Ember Discord.");
@@ -23,7 +21,10 @@ pub fn run(version: &Version) {
 
 fn ask_next_deadline(target: &Version) -> String {
     let input: String = dialoguer::Input::new()
-        .with_prompt(format!("When is {} scheduled to release (YYYY-MM-DD)", target))
+        .with_prompt(format!(
+            "When is {} scheduled to release (YYYY-MM-DD)",
+            target
+        ))
         .interact_text()
         .unwrap();
     println!();

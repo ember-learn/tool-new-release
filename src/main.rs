@@ -14,7 +14,8 @@ mod projects {
 mod cli;
 mod clone;
 mod pipeline;
-mod utils;
+
+pub mod utils;
 
 fn main() {
     let temp = tempfile::tempdir().unwrap();
@@ -29,5 +30,3 @@ fn main() {
 
     temp.close().unwrap();
 }
-
-

@@ -1,4 +1,4 @@
-use crate::utils::{prompt, TaskType};
+use crate::utils::prompt::{prompt, TaskType};
 use std::{path::Path, process};
 
 pub fn run(dir: &Path, opts: &crate::Opts) {

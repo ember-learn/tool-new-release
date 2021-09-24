@@ -1,6 +1,4 @@
-use utils::TaskType;
-
-use crate::utils::{self, prompt};
+use crate::utils::prompt::{prompt, TaskType};
 
 pub fn run() {
     prompt(

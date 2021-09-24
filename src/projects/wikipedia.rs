@@ -1,10 +1,8 @@
 use std::str::from_utf8;
 
+use crate::utils::prompt::{prompt, TaskType};
 use chrono::format::StrftimeItems;
 use serde_json::Value;
-use utils::TaskType;
-
-use crate::utils::{self, prompt};
 
 pub fn run() {
     let (preview_version, preview_date) = get_version_modified_pair("ember-source@beta");

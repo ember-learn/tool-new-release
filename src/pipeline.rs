@@ -41,7 +41,7 @@ impl PipelineProject {
     pub fn run(&self, dir: &Path, opts: &Opts, versions: &utils::versions::CurrentVersions) {
         match self.project {
             crate::cli::Project::Guides => {
-                crate::projects::guides::run(dir, opts);
+                crate::projects::guides::run(dir, opts, versions);
             }
             crate::cli::Project::Api => {
                 crate::projects::api::run(dir, opts);

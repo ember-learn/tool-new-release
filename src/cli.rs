@@ -27,7 +27,7 @@ pub struct Opts {
 
     /// Toggles
     #[structopt(long)]
-    pub major_version: bool
+    pub major_version: bool,
 }
 
 pub fn ask_projects(pipeline: &crate::pipeline::Pipeline) -> Vec<usize> {
@@ -42,18 +42,18 @@ pub fn ask_projects(pipeline: &crate::pipeline::Pipeline) -> Vec<usize> {
     chosen_project_indices
 }
 
-pub fn ask_version(major_version: bool) -> crate::utils::CurrentVersions {
-    let versions = crate::utils::CurrentVersions::from_guides(major_version);
+pub fn ask_version(major_version: bool) -> crate::utils::versions::CurrentVersions {
+    let versions = crate::utils::versions::CurrentVersions::from_guides(major_version);
     let chosen = dialoguer::Select::new()
         .default(1)
         .with_prompt("Pick version you wish to release")
         .items(&[&versions.deployed, &versions.target])
         .interact()
         .unwrap();
-        
+
     match chosen {
         0 => versions,
-        1 => crate::utils::CurrentVersions::from_versions(&versions),
+        1 => crate::utils::versions::CurrentVersions::from_versions(&versions),
         _ => unreachable!(),
     }
 }
@@ -69,7 +69,7 @@ Legend:
 * {} - User input will be required for this task
 * {} - This step is automated
 ",
-        crate::utils::TaskType::Manual,
-        crate::utils::TaskType::Automated
+        crate::utils::prompt::TaskType::Manual,
+        crate::utils::prompt::TaskType::Automated
     );
 }

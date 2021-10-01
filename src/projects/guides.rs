@@ -1,15 +1,12 @@
-use crate::utils::{prompt, TaskType};
+use crate::utils::prompt::{automated, manual};
 use std::{path::Path, process};
 
 pub fn run(dir: &Path, opts: &crate::Opts) {
-    prompt(
-        TaskType::Manual,
-        "Check for pending PRs: https://github.com/ember-learn/guides-source/pulls",
-    );
+    manual("Check for pending PRs: https://github.com/ember-learn/guides-source/pulls");
 
     let (_, guides_source_dir) = crate::clone::github(dir, "ember-learn", "guides-source");
 
-    prompt(TaskType::Automated, "Installing node dependencies");
+    automated("Installing node dependencies");
     if !opts.dry_run {
         process::Command::new("npm")
             .current_dir(&guides_source_dir)
@@ -20,7 +17,7 @@ pub fn run(dir: &Path, opts: &crate::Opts) {
             .expect("Could not install dependencies");
     }
 
-    prompt(TaskType::Automated, "Creating new version of guides");
+    automated("Creating new version of guides");
     if !opts.dry_run {
         process::Command::new("npm")
             .current_dir(&guides_source_dir)
@@ -32,18 +29,17 @@ pub fn run(dir: &Path, opts: &crate::Opts) {
             .expect("Failed to release guides.");
     }
 
-    prompt(
-        TaskType::Manual,
+    manual(
         "Confirm new guides version is deployed before proceeding",
     );
-    prompt(TaskType::Manual, "You are super duper sure it's deployed?");
+    manual("You are super duper sure it's deployed?");
     publish_algolia(opts, &guides_source_dir);
 }
 
 /// This function runs the npm script in the project that
 /// builds search index and then deploys.
 fn publish_algolia(opts: &crate::Opts, dir: &std::path::Path) {
-    prompt(TaskType::Automated, "Publishing Algolia index");
+    automated("Publishing Algolia index");
 
     if !opts.dry_run {
         process::Command::new("npm")

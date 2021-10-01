@@ -1,9 +1,12 @@
 use core::panic;
 use git2::{Direction, PushOptions, Repository};
 use semver::Version;
-use std::{io::Write, path::{Path, PathBuf}};
+use std::{
+    io::Write,
+    path::{Path, PathBuf},
+};
 
-use crate::utils::prompt;
+use crate::utils::prompt::{automated, manual};
 
 static STATIC_STR: &str = "
     <!-- include the Glitch button to show what the webpage is about and
@@ -16,13 +19,11 @@ pub fn run(dir: &std::path::Path, opts: &crate::Opts, version: &Version) {
     let version = &format!("v{}", version);
 
     if !opts.dry_run {
-        prompt(crate::utils::TaskType::Manual, "Cloning Glitch starter app");
+        manual("Cloning Glitch starter app");
         let glitch_repo_url = get_glitch_repo_url();
         let (glitch_repo, glitch_dir) = crate::clone::glitch(dir, &glitch_repo_url);
 
-        prompt(
-            crate::utils::TaskType::Manual,
-            "Updating Glitch app with content from ember-new-output",
+        manual("Updating Glitch app with content from ember-new-output"
         );
         update_repo_files(&glitch_dir, version);
         update_package_json(glitch_dir.clone());
@@ -52,7 +53,8 @@ pub fn run(dir: &std::path::Path, opts: &crate::Opts, version: &Version) {
             )
             .unwrap();
 
-        prompt(crate::utils::TaskType::Manual, "Pushing changes to Glitch");
+        automated("Pushing changes to Glitch",
+        );
         push_to_glitch(glitch_dir);
 
         println!("\n");
@@ -70,7 +72,7 @@ fn push_to_glitch(dir: PathBuf) {
 }
 
 fn get_glitch_repo_url() -> String {
-    let vars = crate::utils::heroku_env_vars("ember-glitch-integration");
+    let vars = crate::utils::heroku::get_env_vars("ember-glitch-integration");
     let (_, glitch_repo_url) = vars.first().unwrap();
 
     glitch_repo_url.replace("'", "")

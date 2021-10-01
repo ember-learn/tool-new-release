@@ -1,10 +1,8 @@
 use std::str::from_utf8;
 
+use crate::utils::prompt::manual;
 use chrono::format::StrftimeItems;
 use serde_json::Value;
-use utils::TaskType;
-
-use crate::utils::{self, prompt};
 
 pub fn run() {
     let (preview_version, preview_date) = get_version_modified_pair("ember-source@beta");
@@ -18,23 +16,17 @@ pub fn run() {
         today = today
     );
 
-    prompt(
-        TaskType::Manual,
-        "Go to https://en.wikipedia.org/w/index.php?title=Ember.js&action=edit.\nWe suggest you log in.",
+    manual("Go to https://en.wikipedia.org/w/index.php?title=Ember.js&action=edit.\nWe suggest you log in.",
     );
 
-    prompt(
-        TaskType::Manual,
-        format!(
+    manual(format!(
             "Replace the relevant release section of the Infobox with the following:\n\n{}\n",
             infobox
         )
         .as_str(),
     );
 
-    prompt(
-        TaskType::Manual,
-        "Write a small summary and publish your changes!",
+    manual("Write a small summary and publish your changes!",
     );
 }
 

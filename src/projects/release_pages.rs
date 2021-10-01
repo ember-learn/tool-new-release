@@ -1,15 +1,9 @@
-use utils::TaskType;
-
-use crate::utils::{self, prompt};
+use crate::utils::prompt::manual;
 
 pub fn run() {
-    prompt(
-        TaskType::Manual,
-        "Go to https://github.com/ember-learn/ember-website.",
+    manual("Go to https://github.com/ember-learn/ember-website.",
     );
-    prompt(
-        TaskType::Manual,
-        "Edit the following files:
+    manual("Edit the following files:
 1. data/project/ember/lts.md
 2. data/project/ember/release.md
 3. data/project/ember/beta.md

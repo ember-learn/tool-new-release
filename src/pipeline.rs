@@ -53,13 +53,13 @@ impl PipelineProject {
                 crate::projects::release_pages::run();
             }
             crate::cli::Project::Glitch => {
-                crate::projects::glitch::run(dir, opts, &versions.deployed);
+                crate::projects::glitch::run(dir, opts, &versions.target);
             }
             crate::cli::Project::Wikipedia => {
                 crate::projects::wikipedia::run();
             }
             crate::cli::Project::Bot => {
-                crate::projects::bot::run(&versions.deployed);
+                crate::projects::bot::run(&versions.target);
             }
         };
     }

@@ -22,7 +22,7 @@ struct GuidesVersionsData {
 struct GuidesVersions {
     data: GuidesVersionsData,
 }
-
+#[derive(Debug)]
 pub struct CurrentVersions {
     pub deployed: Version,
     pub target: Version,
@@ -53,8 +53,20 @@ impl CurrentVersions {
 
     pub fn from_versions(versions: &Self) -> Self {
         let deployed = versions.deployed.clone();
-        let target: Version = versions.target.clone();
+        let target = versions.target.clone();
 
         Self { deployed, target }
+    }
+
+    // Does not work for M.0.0 versions
+    pub fn from_target_version(target: &Version) -> Self {
+        if target.minor == 0 {
+            panic!("Does not support M.0.0 versions");
+        }
+
+        Self {
+            deployed: Version::new(target.major, target.minor - 1, 0),
+            target: target.clone(),
+        }
     }
 }

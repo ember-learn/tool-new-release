@@ -16,6 +16,15 @@ mod clone;
 mod pipeline;
 
 pub mod utils;
+mod git {
+    pub mod add;
+    pub mod clone;
+    pub mod commit;
+    pub mod push;
+}
+mod glitch {
+    pub mod push;
+}
 
 fn main() {
     let temp = tempfile::tempdir().unwrap();
@@ -24,6 +33,7 @@ fn main() {
 
     crate::cli::intro();
     let versions = crate::cli::ask_version(opts.major_version);
+    // println!("{:#?}", versions);
     let mut pipeline = pipeline::Pipeline::new();
     let chosen_project_indices = crate::cli::ask_projects(&pipeline);
     pipeline.run(chosen_project_indices, dir, &opts, &versions);

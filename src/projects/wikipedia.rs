@@ -19,15 +19,15 @@ pub fn run() {
     manual("Go to https://en.wikipedia.org/w/index.php?title=Ember.js&action=edit.\nWe suggest you log in.",
     );
 
-    manual(format!(
+    manual(
+        format!(
             "Replace the relevant release section of the Infobox with the following:\n\n{}\n",
             infobox
         )
         .as_str(),
     );
 
-    manual("Write a small summary and publish your changes!",
-    );
+    manual("Write a small summary and publish your changes!");
 }
 
 fn get_version_modified_pair(

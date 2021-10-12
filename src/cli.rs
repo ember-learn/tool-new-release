@@ -52,7 +52,7 @@ pub fn ask_version(major_version: bool) -> crate::utils::versions::CurrentVersio
         .unwrap();
 
     match chosen {
-        0 => versions,
+        0 => crate::utils::versions::CurrentVersions::from_target_version(&versions.deployed),
         1 => crate::utils::versions::CurrentVersions::from_versions(&versions),
         _ => unreachable!(),
     }

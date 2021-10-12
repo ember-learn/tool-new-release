@@ -1,12 +1,11 @@
-use core::panic;
-use git2::{Direction, PushOptions, Repository};
 use semver::Version;
 use std::{
+    fs::File,
     io::Write,
     path::{Path, PathBuf},
 };
 
-use crate::utils::prompt::{automated, manual};
+use crate::utils::prompt::automated;
 
 static STATIC_STR: &str = "
     <!-- include the Glitch button to show what the webpage is about and
@@ -19,56 +18,23 @@ pub fn run(dir: &std::path::Path, opts: &crate::Opts, version: &Version) {
     let version = &format!("v{}", version);
 
     if !opts.dry_run {
-        manual("Cloning Glitch starter app");
+        automated("Cloning Glitch starter app");
         let glitch_repo_url = get_glitch_repo_url();
-        let (glitch_repo, glitch_dir) = crate::clone::glitch(dir, &glitch_repo_url);
+        let (glitch_repo, glitch_dir) = crate::git::clone::clone(dir, glitch_repo_url);
 
-        manual("Updating Glitch app with content from ember-new-output"
-        );
+        automated("Updating Glitch app with content from ember-new-output");
         update_repo_files(&glitch_dir, version);
         update_package_json(glitch_dir.clone());
         update_index_html(glitch_dir.clone());
 
-        // stage modified files
-        let mut index = glitch_repo.index().unwrap();
-        index
-            .add_all(["*"].iter(), git2::IndexAddOption::DEFAULT, None)
-            .unwrap();
-        index.write().unwrap();
+        let index = crate::git::add::add(&glitch_repo);
+        crate::git::commit::commit(index, &glitch_repo, version);
 
-        // commit modified files
-        let tree_id = index.write_tree().unwrap();
-        let tree = glitch_repo.find_tree(tree_id).unwrap();
-        let sig = glitch_repo.signature().unwrap();
-        let head_id = glitch_repo.refname_to_id("HEAD").unwrap();
-        let parent = glitch_repo.find_commit(head_id).unwrap();
-        let _commit_id = glitch_repo
-            .commit(
-                Some("HEAD"),
-                &sig,
-                &sig,
-                &format!("{} (glitch)", version),
-                &tree,
-                &[&parent],
-            )
-            .unwrap();
-
-        automated("Pushing changes to Glitch",
-        );
-        push_to_glitch(glitch_dir);
+        automated("Pushing changes to Glitch");
+        crate::glitch::push::push(glitch_dir);
 
         println!("\n");
     }
-}
-
-fn push_to_glitch(dir: PathBuf) {
-    std::process::Command::new("git")
-        .current_dir(&dir)
-        .args(&["push"])
-        .spawn()
-        .unwrap()
-        .wait()
-        .expect("git status");
 }
 
 fn get_glitch_repo_url() -> String {
@@ -100,57 +66,28 @@ fn update_index_html(mut path: PathBuf) {
     path.pop();
 }
 
-#[allow(dead_code)]
-fn push_to_git(repo: &Repository) -> std::result::Result<(), git2::Error> {
-    let mut cb = git2::RemoteCallbacks::new();
-    cb.push_update_reference(|refname, status| {
-        println!("-> {}", refname);
-        if status.is_some() {
-            panic!("Could not push to remote");
-        } else {
-            Ok(())
-        }
-    });
-    cb.credentials(|_url, username_from_url, _allowed_types| {
-        println!("CRED->{:?}", _allowed_types);
-        git2::Cred::username(username_from_url.unwrap())
-    });
-    cb.certificate_check(|_cert, str| {
-        println!("CERT {:?}", str);
-        true
-    });
-
-    let mut opts = PushOptions::new();
-    opts.remote_callbacks(cb);
-
-    let mut glitch = repo.find_remote("origin").unwrap();
-    glitch.connect(Direction::Push).unwrap();
-    glitch.push(&["refs/heads/master"] as &[&str], Some(&mut opts))
-}
-
 fn update_repo_files(glitch_dir: &Path, version: &str) {
     let zip_file = download_ember_new(version);
     unpack_ember_new_output(&zip_file, glitch_dir);
 }
 
 fn download_ember_new(version: &str) -> PathBuf {
-    let mut dir = tempfile::tempdir().unwrap().into_path();
+    let mut zip_path = tempfile::tempdir().unwrap().into_path();
     let zip_url = format!(
         "https://github.com/ember-cli/ember-new-output/archive/{}.zip",
         &version
     );
 
-    std::process::Command::new("wget")
-        .current_dir(&dir)
-        .args(&[zip_url])
-        .spawn()
-        .unwrap()
-        .wait()
-        .expect("git status");
+    let response = reqwest::blocking::get(&zip_url).expect("Could not download ember-new-output");
+    if !response.status().is_success() {
+        println!("Could not find zip file for {}", &version);
+        std::process::exit(-1);
+    }
+    let zip = response.bytes().unwrap();
+    zip_path.push(format!("{}.zip", &version));
+    File::create(&zip_path).unwrap().write_all(&zip).unwrap();
 
-    dir.push(format!("{}.zip", &version));
-
-    dir
+    zip_path
 }
 
 fn unpack_ember_new_output(zip_path: &Path, glitch: &Path) {

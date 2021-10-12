@@ -29,9 +29,7 @@ pub fn run(dir: &Path, opts: &crate::Opts) {
             .expect("Failed to release guides.");
     }
 
-    manual(
-        "Confirm new guides version is deployed before proceeding",
-    );
+    manual("Confirm new guides version is deployed before proceeding");
     manual("You are super duper sure it's deployed?");
     publish_algolia(opts, &guides_source_dir);
 }

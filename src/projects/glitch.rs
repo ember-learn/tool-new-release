@@ -21,7 +21,7 @@ pub fn run(dir: &std::path::Path, opts: &crate::Opts, version: &Version) {
     if !opts.dry_run {
         manual("Cloning Glitch starter app");
         let glitch_repo_url = get_glitch_repo_url();
-        let (glitch_repo, glitch_dir) = crate::clone::glitch(dir, &glitch_repo_url);
+        let (glitch_repo, glitch_dir) = crate::git::clone::clone(dir, glitch_repo_url);
 
         manual("Updating Glitch app with content from ember-new-output"
         );

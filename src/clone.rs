@@ -9,7 +9,3 @@ pub fn github(
 
     crate::git::clone::clone(root, src)
 }
-
-pub fn glitch(root: &Path, src: &str) -> (git2::Repository, PathBuf) {
-    crate::git::clone::clone(root, src.to_string())
-}

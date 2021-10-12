@@ -3,9 +3,7 @@ use semver::Version;
 
 pub fn run(version: &Version) {
     manual("Go to #core-meta on the Ember Discord.");
-    manual(
-        "Mark current release done with `!release done blog`.",
-    );
+    manual("Mark current release done with `!release done blog`.");
     let deadline = ask_next_deadline(version);
 
     manual(

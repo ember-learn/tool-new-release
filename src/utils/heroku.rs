@@ -1,16 +1,11 @@
 use super::prompt::automated;
 
 pub fn get_env_vars(project: &str) -> Vec<(String, String)> {
-    if cfg!(windows) {
-        check_heroku_cli_windows();
-    } else {
-        check_heroku_cli();
-    }
+    check_heroku_cli();
 
     crate::utils::prompt::automated("Fetching env vars from heroku");
 
     let heroku_vars = std::process::Command::new("heroku")
-        // .current_dir(&dir)
         .arg("config")
         .arg("-s")
         .args(&["-a", project])
@@ -30,12 +25,10 @@ pub fn get_env_vars(project: &str) -> Vec<(String, String)> {
 }
 
 // Checks if heroku-cli is installed, and  then  checks if user is logged in.
-// I was getting bogged down on building up the command according to the platform, so...
-fn check_heroku_cli_windows() {
+fn check_heroku_cli() {
     automated("Checking heroku-cli");
 
-    if std::process::Command::new("cmd")
-        .args(&["/C", "heroku"])
+    if heroku_cmd()
         .stdout(std::process::Stdio::null())
         .status()
         .is_err()
@@ -44,14 +37,14 @@ fn check_heroku_cli_windows() {
         std::process::exit(1);
     }
 
-    if !std::process::Command::new("cmd")
-        .args(&["/C", "heroku", "auth:whoami"])
+    if !heroku_cmd()
+        .arg("auth:whoami")
         .status()
         .expect("Could not confirm login")
         .success()
     {
-        let status = std::process::Command::new("cmd")
-            .args(&["/C", "heroku", "login"])
+        let status = heroku_cmd()
+            .arg("login")
             .spawn()
             .expect("Could not log in user.")
             .wait()
@@ -63,34 +56,14 @@ fn check_heroku_cli_windows() {
     }
 }
 
-// Checks if heroku-cli is installed, and  then  checks if user is logged in.
-fn check_heroku_cli() {
-    automated("Checking heroku-cli");
+#[cfg(windows)]
+fn heroku_cmd() -> std::process::Command {
+    let mut cmd = std::process::Command::new("cmd");
+    cmd.args(&["/C", "heroku"]);
+    cmd
+}
 
-    if std::process::Command::new("heroku")
-        .stdout(std::process::Stdio::null())
-        .status()
-        .is_err()
-    {
-        eprintln!("heroku-cli not found. Please install and try again: https://devcenter.heroku.com/articles/heroku-cli");
-        std::process::exit(1);
-    }
-
-    if !std::process::Command::new("heroku")
-        .arg("auth:whoami")
-        .status()
-        .expect("Could not confirm login")
-        .success()
-    {
-        let status = std::process::Command::new("heroku")
-            .arg("login")
-            .spawn()
-            .expect("Could not log in user.")
-            .wait()
-            .expect("??");
-
-        if !status.success() {
-            std::process::exit(1);
-        }
-    }
+#[cfg(not(windows))]
+fn heroku_cmd() -> std::process::Command {
+    std::process::Command::new("heroku")
 }

@@ -8,6 +8,13 @@ pub fn run(dir: &Path, opts: &crate::Opts) {
 
     automated("Installing node dependencies");
     if !opts.dry_run {
+        process::Command::new("node")
+            .current_dir(&guides_source_dir)
+            .arg("--version")
+            .spawn()
+            .expect("Could not start process")
+            .wait()
+            .expect("Could not install dependencies");
         process::Command::new("npm")
             .current_dir(&guides_source_dir)
             .arg("install")

@@ -1,3 +1,4 @@
+use crate::utils::prompt::automated;
 use std::path::PathBuf;
 
 pub fn github(
@@ -6,6 +7,7 @@ pub fn github(
     project: &str,
 ) -> (git2::Repository, PathBuf) {
     let src = format!("https://github.com/{}/{}.git", organization, project);
+    automated(format!("Cloning {}", src).as_str());
 
     crate::git::clone::clone(root, src)
 }

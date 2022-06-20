@@ -80,8 +80,16 @@ pub fn run(dir: &Path, opts: &crate::Opts, versions: &CurrentVersions) {
 
     let index = crate::git::add::add(&guides_source_repo);
     crate::git::commit::commit_with_message(index, &guides_source_repo, &version_string);
-    process::Command::new("git").current_dir(&guides_source_dir).args(&["add", "-A"]).output().unwrap();
-    process::Command::new("git").current_dir(&guides_source_dir).args(&["commit", "-m", &version_string]).output().unwrap();
+    process::Command::new("git")
+        .current_dir(&guides_source_dir)
+        .args(&["add", "-A"])
+        .output()
+        .unwrap();
+    process::Command::new("git")
+        .current_dir(&guides_source_dir)
+        .args(&["commit", "-m", &version_string])
+        .output()
+        .unwrap();
     automated("Pushing changes");
     process::Command::new("git")
         .current_dir(&guides_source_dir)
@@ -91,9 +99,9 @@ pub fn run(dir: &Path, opts: &crate::Opts, versions: &CurrentVersions) {
             "origin",
             &format!(
                 "master:automated-release-{}-{}",
-                &versions.deployed.major, &versions.deployed.minor, 
+                &versions.deployed.major, &versions.deployed.minor,
             ),
-            "--force"
+            "--force",
         ])
         .spawn()
         .expect("Could not start scripts/update-version-links process")
@@ -110,10 +118,6 @@ pub fn run(dir: &Path, opts: &crate::Opts, versions: &CurrentVersions) {
     // echo
     // echo "👩‍💻 Create pull request for $($TEMP_BRANCH): https://github.com/ember-learn/guides-source/compare/master...$TEMP_BRANCH"
     // read -n 1 -s -r -p "Press any key to continue"
-
-    manual("Confirm new guides version is deployed before proceeding");
-    manual("You are super duper sure it's deployed?");
-    publish_algolia(opts, &guides_source_dir);
 }
 
 fn create_release_version_folder(
@@ -134,23 +138,6 @@ fn create_release_version_folder(
     std::fs::create_dir(&target_dir).unwrap();
 
     fs_extra::dir::copy(content_dir, target_dir, &fs_extra::dir::CopyOptions::new()).unwrap();
-}
-
-/// This function runs the npm script in the project that
-/// builds search index and then deploys.
-fn publish_algolia(opts: &crate::Opts, dir: &Path) {
-    automated("Publishing Algolia index");
-
-    if !opts.dry_run {
-        process::Command::new("npm")
-            .current_dir(&dir)
-            .arg("run")
-            .arg("release:search")
-            .spawn()
-            .expect("Couldn't start process.")
-            .wait()
-            .expect("Failed to publish algolia index");
-    }
 }
 
 fn update_versions_yml(guides_source_dir: &Path, version: &semver::Version) -> bool {

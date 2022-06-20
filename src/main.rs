@@ -7,7 +7,8 @@ mod projects {
     pub mod blog_post;
     pub mod bot;
     pub mod glitch;
-    pub mod guides;
+    pub mod guides_content;
+    pub mod guides_search;
     pub mod release_pages;
     pub mod wikipedia;
 }

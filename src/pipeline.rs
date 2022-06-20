@@ -40,8 +40,11 @@ impl PipelineProject {
 
     pub fn run(&self, dir: &Path, opts: &Opts, versions: &utils::versions::CurrentVersions) {
         match self.project {
-            crate::cli::Project::Guides => {
-                crate::projects::guides::run(dir, opts);
+            crate::cli::Project::GuidesContent => {
+                crate::projects::guides_content::run(dir, opts);
+            }
+            crate::cli::Project::GuidesSearch => {
+                crate::projects::guides_search::run(dir, opts);
             }
             crate::cli::Project::Api => {
                 crate::projects::api::run(dir, opts);
@@ -88,7 +91,8 @@ pub struct Pipeline(pub Vec<PipelineProject>);
 impl Pipeline {
     pub fn new() -> Pipeline {
         Pipeline(vec![
-            PipelineProject::new(Project::Guides),
+            PipelineProject::new(Project::GuidesContent),
+            PipelineProject::new(Project::GuidesSearch),
             PipelineProject::new(Project::Api),
             PipelineProject::new(Project::BlogPost),
             PipelineProject::new(Project::ReleasePages),

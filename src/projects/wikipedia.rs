@@ -16,18 +16,22 @@ pub fn run() {
         today = today
     );
 
-    manual("Go to https://en.wikipedia.org/w/index.php?title=Ember.js&action=edit.\nWe suggest you log in.",
+    manual("Go to the wiki data that the wikipedia page loads in: https://www.wikidata.org/wiki/Q13592527.\nWe suggest you log in.",
     );
 
     manual(
         format!(
-            "Replace the relevant release section of the Infobox with the following:\n\n{}\n",
+            "At the botton of the giant list of versions, add a new entry. See earlier entries to find out what data to include:\n\n{}\n",
             infobox
         )
         .as_str(),
     );
-
-    manual("Write a small summary and publish your changes!");
+    
+    manual("While you have the data record open for editing, click the up arrow to mark it as 'preferred.' Edit the previous release version, and click the center dot to mark it as 'normal' rank. Make sure to publish your changes.",
+    );
+    
+    manual("Visit https://en.wikipedia.org/w/index.php?title=Ember.js to see if your changes show up in the Stable Release section.",
+    );
 }
 
 fn get_version_modified_pair(

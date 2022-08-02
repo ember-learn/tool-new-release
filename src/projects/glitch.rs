@@ -19,7 +19,7 @@ pub fn run(dir: &std::path::Path, opts: &crate::Opts, version: &Version) {
 
     if !opts.dry_run {
         automated("Cloning Glitch starter app");
-        let glitch_repo_url = get_glitch_repo_url();
+        let glitch_repo_url = crate::utils::op::get_glitch();
         let (glitch_repo, glitch_dir) = crate::git::clone::clone(dir, glitch_repo_url);
 
         automated("Updating Glitch app with content from ember-new-output");
@@ -35,13 +35,6 @@ pub fn run(dir: &std::path::Path, opts: &crate::Opts, version: &Version) {
 
         println!("\n");
     }
-}
-
-fn get_glitch_repo_url() -> String {
-    let vars = crate::utils::heroku::get_env_vars("ember-glitch-integration");
-    let (_, glitch_repo_url) = vars.first().unwrap();
-
-    glitch_repo_url.replace("'", "")
 }
 
 fn update_package_json(mut path: PathBuf) {

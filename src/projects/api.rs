@@ -3,7 +3,7 @@ use crate::Opts;
 use std::process;
 
 pub fn run(dir: &std::path::Path, opts: &Opts) {
-    let vars = crate::utils::op::get_api_docs_vars();
+    let vars = crate::utils::op::api_docs::read();
     let (_, jsonapi_docs_dir) = crate::clone::github(dir, "ember-learn", "ember-jsonapi-docs");
 
     automated("Installing node dependencies");

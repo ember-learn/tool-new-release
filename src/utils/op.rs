@@ -1,83 +1,99 @@
-use std::process::Command;
-
-use serde::{Deserialize, Serialize};
-
-#[derive(Serialize, Deserialize)]
-pub struct OpDetails {
-    pub password: String,
-}
-#[derive(Serialize, Deserialize)]
-pub struct OpItem {
-    pub details: OpDetails,
-}
-
-#[derive(Serialize, Deserialize)]
-pub struct OpNote {
-    pub value: String,
-}
-
-fn login() {
-    let status = Command::new("op")
+fn is_installed() {
+    let status = op()
         .stdout(std::process::Stdio::piped())
         .args(&["whoami"])
-        .status()
-        .unwrap();
+        .status();
 
-    match status.code() {
-        Some(0) => {}
-        _ => {
-            Command::new("op")
-                .stdout(std::process::Stdio::piped())
-                .args(&["signin", "--account", "ember-cli.1password.com"])
-                .spawn()
-                .unwrap()
-                .wait_with_output()
-                .unwrap();
-        }
+    if let Err(_) = status {
+        install();
     }
 }
 
-pub fn get_glitch() -> String {
-    login();
-    let output = Command::new("op")
-        .args(&["item", "get", "Glitch", "--fields", "password"])
-        .output()
-        .unwrap();
-    String::from_utf8_lossy(&output.stdout).trim().to_string()
-}
+#[cfg(target_os = "macos")]
+fn install() {
+    use super::prompt::automated;
 
-pub fn get_api_docs_vars() -> Vec<(String, String)> {
-    login();
-    let output = Command::new("op")
+    automated("Could not find op binary. Installing using homebrew…");
+    std::process::Command::new("brew")
         .args(&[
-            "item",
-            "get",
-            "API docs",
-            "--fields",
-            "notesPlain",
-            "--format",
-            "json",
+            "install",
+            "--quiet",
+            "--cask",
+            "1password/tap/1password-cli",
         ])
-        .output()
-        .unwrap();
-    let str = String::from_utf8(output.stdout).unwrap();
-    let note = serde_json::from_str::<OpNote>(&str).unwrap();
-
-    let mut res = vec![];
-    for line in note.value.trim().split('\n') {
-        println!("and a-one");
-        let mut x = line.split('=').collect::<Vec<&str>>().into_iter();
-        res.push((x.next().unwrap().to_owned(), x.next().unwrap().to_owned()));
-    }
-
-    res
+        .spawn()
+        .expect("Couldn't execute Homebrew.")
+        .wait_with_output()
+        .expect("Homebrew failed.");
 }
 
-pub fn get_guides_search_key() -> String {
-    login();
-    let output = Command::new("op")
-        .args(&["item", "get", "Guides Search", "--fields", "password"])
-        .output()
-        .unwrap();
+#[cfg(not(target_os = "macos"))]
+fn install() {
+    eprintln!("Could not find op binary. Follow the installation instructions at https://1password.com/downloads/command-line/ and try running this tool again.");
+    std::process::exit(-1);
+}
+
+fn is_logged_in() {
+    let status = op()
+        .stdout(std::process::Stdio::piped())
+        .args(&["whoami"])
+        .status();
+
+    if let Ok(exit_status) = status {
+        match exit_status.code() {
+            Some(0) => {}
+            _ => {
+                let login = op()
+                    .stdout(std::process::Stdio::piped())
+                    .args(&["signin", "--account", "ember-cli.1password.com"])
+                    .spawn();
+
+                match login {
+                    Ok(result) => {
+                        if let Ok(res) = result.wait_with_output() {
+                        } else {
+                            eprintln!("Oops.");
+                        }
+                    }
+                    Err(err) => {
+                        eprintln!("Could not log in: {}", err);
+                    }
+                }
+            }
+        }
+    } else {
+        eprintln!("op-cli is not installed.")
+    }
+}
+
+fn check_1password_cli() {
+    is_installed();
+    is_logged_in();
+}
+
+fn op() -> std::process::Command {
+    std::process::Command::new("op")
+}
+
+pub fn read(path: &str) -> String {
+    check_1password_cli();
+
+    let output = op().args(&["read", path]).output().unwrap();
     String::from_utf8_lossy(&output.stdout).trim().to_string()
+}
+pub mod glitch {
+    pub fn read() -> String {
+        super::read("op://Ember Learning Team/Glitch/password")
+    }
+}
+
+pub mod api_docs {
+    use std::collections::HashMap;
+
+    pub type AwsCredentials = HashMap<String, String>;
+
+    pub fn read() -> AwsCredentials {
+        let read = super::read("op://Ember Learning Team/api_docs_toml/notesPlain");
+        toml::from_str::<AwsCredentials>(&read).unwrap()
+    }
 }

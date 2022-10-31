@@ -1,83 +1,86 @@
-use std::process::Command;
+fn is_installed() {
+    let status = op()
+        .stdout(std::process::Stdio::piped())
+        .args(&["whoami"])
+        .status();
 
-use serde::{Deserialize, Serialize};
-
-#[derive(Serialize, Deserialize)]
-pub struct OpDetails {
-    pub password: String,
-}
-#[derive(Serialize, Deserialize)]
-pub struct OpItem {
-    pub details: OpDetails,
+    if status.is_err() {
+        install();
+    }
 }
 
-#[derive(Serialize, Deserialize)]
-pub struct OpNote {
-    pub value: String,
+#[cfg(target_os = "macos")]
+fn install() {
+    use super::prompt::automated;
+
+    automated("Could not find op binary. Installing using homebrew…");
+    std::process::Command::new("brew")
+        .args(&[
+            "install",
+            "--quiet",
+            "--cask",
+            "1password/tap/1password-cli",
+        ])
+        .spawn()
+        .expect("Couldn't execute Homebrew.")
+        .wait_with_output()
+        .expect("Homebrew failed.");
 }
 
-fn login() {
-    let status = Command::new("op")
+#[cfg(not(target_os = "macos"))]
+fn install() {
+    eprintln!("Could not find op binary. Follow the installation instructions at https://1password.com/downloads/command-line/ and try running this tool again.");
+    std::process::exit(-1);
+}
+
+fn is_logged_in() {
+    let status = op()
         .stdout(std::process::Stdio::piped())
         .args(&["whoami"])
         .status()
-        .unwrap();
+        .expect("Could not retrieve 1Password account details");
 
     match status.code() {
         Some(0) => {}
         _ => {
-            Command::new("op")
-                .stdout(std::process::Stdio::piped())
+            op().stdout(std::process::Stdio::piped())
                 .args(&["signin", "--account", "ember-cli.1password.com"])
                 .spawn()
-                .unwrap()
+                .expect("Could not start 1password-cli")
                 .wait_with_output()
-                .unwrap();
+                .expect("Could not log in");
         }
     }
 }
 
-pub fn get_glitch() -> String {
-    login();
-    let output = Command::new("op")
-        .args(&["item", "get", "Glitch", "--fields", "password"])
-        .output()
-        .unwrap();
-    String::from_utf8_lossy(&output.stdout).trim().to_string()
+fn check_1password_cli() {
+    is_installed();
+    is_logged_in();
 }
 
-pub fn get_api_docs_vars() -> Vec<(String, String)> {
-    login();
-    let output = Command::new("op")
-        .args(&[
-            "item",
-            "get",
-            "API docs",
-            "--fields",
-            "notesPlain",
-            "--format",
-            "json",
-        ])
-        .output()
-        .unwrap();
-    let str = String::from_utf8(output.stdout).unwrap();
-    let note = serde_json::from_str::<OpNote>(&str).unwrap();
+fn op() -> std::process::Command {
+    std::process::Command::new("op")
+}
 
-    let mut res = vec![];
-    for line in note.value.trim().split('\n') {
-        println!("and a-one");
-        let mut x = line.split('=').collect::<Vec<&str>>().into_iter();
-        res.push((x.next().unwrap().to_owned(), x.next().unwrap().to_owned()));
+pub fn read(path: &str) -> String {
+    check_1password_cli();
+
+    let output = op().args(&["read", path]).output().unwrap();
+    String::from_utf8_lossy(&output.stdout).trim().to_string()
+}
+pub mod glitch {
+    pub fn read() -> String {
+        super::read("op://Ember Learning Team/Glitch/password")
     }
-
-    res
 }
 
-pub fn get_guides_search_key() -> String {
-    login();
-    let output = Command::new("op")
-        .args(&["item", "get", "Guides Search", "--fields", "password"])
-        .output()
-        .unwrap();
-    String::from_utf8_lossy(&output.stdout).trim().to_string()
+pub mod api_docs {
+    use std::collections::HashMap;
+
+    type AwsCredentials = HashMap<String, String>;
+
+    pub fn read() -> AwsCredentials {
+        let read = super::read("op://Ember Learning Team/api_docs_toml/notesPlain");
+        toml::from_str::<AwsCredentials>(&read).unwrap()
+    }
 }

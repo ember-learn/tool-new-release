@@ -6,7 +6,7 @@ pub fn github(
     organization: &str,
     project: &str,
 ) -> (git2::Repository, PathBuf) {
-    let src = format!("git@github.com:{}/{}.git", organization, project);
+    let src = format!("https://git@github.com/{}/{}.git", organization, project);
     automated(format!("Cloning {}", src).as_str());
 
     crate::git::clone::clone(root, src)

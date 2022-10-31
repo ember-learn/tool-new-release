@@ -19,7 +19,7 @@ pub fn run(dir: &std::path::Path, opts: &crate::Opts, version: &Version) {
 
     if !opts.dry_run {
         automated("Cloning Glitch starter app");
-        let glitch_repo_url = crate::utils::op::get_glitch();
+        let glitch_repo_url = crate::utils::op::glitch::read();
         let (glitch_repo, glitch_dir) = crate::git::clone::clone(dir, glitch_repo_url);
 
         automated("Updating Glitch app with content from ember-new-output");
@@ -73,7 +73,7 @@ fn download_ember_new(version: &str) -> PathBuf {
 
     let response = reqwest::blocking::get(&zip_url).expect("Could not download ember-new-output");
     if !response.status().is_success() {
-        println!("Could not find zip file for {}", &version);
+        eprintln!("Could not find zip file for {}", &version);
         std::process::exit(-1);
     }
     let zip = response.bytes().unwrap();

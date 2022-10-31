@@ -4,7 +4,7 @@ fn is_installed() {
         .args(&["whoami"])
         .status();
 
-    if let Err(_) = status {
+    if status.is_err() {
         install();
     }
 }
@@ -37,32 +37,19 @@ fn is_logged_in() {
     let status = op()
         .stdout(std::process::Stdio::piped())
         .args(&["whoami"])
-        .status();
+        .status()
+        .expect("Could not retrieve 1Password account details");
 
-    if let Ok(exit_status) = status {
-        match exit_status.code() {
-            Some(0) => {}
-            _ => {
-                let login = op()
-                    .stdout(std::process::Stdio::piped())
-                    .args(&["signin", "--account", "ember-cli.1password.com"])
-                    .spawn();
-
-                match login {
-                    Ok(result) => {
-                        if let Ok(res) = result.wait_with_output() {
-                        } else {
-                            eprintln!("Oops.");
-                        }
-                    }
-                    Err(err) => {
-                        eprintln!("Could not log in: {}", err);
-                    }
-                }
-            }
+    match status.code() {
+        Some(0) => {}
+        _ => {
+            op().stdout(std::process::Stdio::piped())
+                .args(&["signin", "--account", "ember-cli.1password.com"])
+                .spawn()
+                .expect("Could not start 1password-cli")
+                .wait_with_output()
+                .expect("Could not log in");
         }
-    } else {
-        eprintln!("op-cli is not installed.")
     }
 }
 
@@ -90,7 +77,7 @@ pub mod glitch {
 pub mod api_docs {
     use std::collections::HashMap;
 
-    pub type AwsCredentials = HashMap<String, String>;
+    type AwsCredentials = HashMap<String, String>;
 
     pub fn read() -> AwsCredentials {
         let read = super::read("op://Ember Learning Team/api_docs_toml/notesPlain");

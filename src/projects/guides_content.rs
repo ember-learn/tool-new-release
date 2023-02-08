@@ -35,25 +35,4 @@ pub fn run(dir: &Path, opts: &crate::Opts) {
             .wait()
             .expect("Failed to release guides.");
     }
-
-    manual("Confirm new guides version is deployed before proceeding");
-    manual("You are super duper sure it's deployed?");
-    publish_algolia(opts, &guides_source_dir);
-}
-
-/// This function runs the npm script in the project that
-/// builds search index and then deploys.
-fn publish_algolia(opts: &crate::Opts, dir: &std::path::Path) {
-    automated("Publishing Algolia index");
-
-    if !opts.dry_run {
-        process::Command::new("npm")
-            .current_dir(&dir)
-            .arg("run")
-            .arg("release:search")
-            .spawn()
-            .expect("Couldn't start process.")
-            .wait()
-            .expect("Failed to publish algolia index");
-    }
 }

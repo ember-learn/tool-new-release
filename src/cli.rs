@@ -3,7 +3,8 @@ use structopt::{clap::arg_enum, StructOpt};
 arg_enum! {
     #[derive(Debug, StructOpt, Clone)]
     pub enum Project {
-        Guides,
+        GuidesContent,
+        GuidesSearch,
         Api,
         BlogPost,
         ReleasePages,

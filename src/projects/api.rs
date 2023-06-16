@@ -1,15 +1,21 @@
-use crate::utils::prompt::automated;
-use crate::Opts;
-use std::process;
+use crate::{utils::prompt::automated};
+use std::{process};
+use regex::Regex;
 
-pub fn run(dir: &std::path::Path, opts: &Opts) {
+pub fn run(dir: &std::path::Path, dry_run: bool, new_version: String) {
+    let re = Regex::new(r"v\d+\.\d+\.\d+").unwrap();
+
+    if !re.is_match(&new_version) {
+        panic!("you need to provide --new-version in the format v4.11.0 (including the v)");
+    }
+
     let vars = crate::utils::op::api_docs::read();
-    let (_, jsonapi_docs_dir) = crate::clone::github(dir, "ember-learn", "ember-jsonapi-docs");
+    crate::utils::clone::github(dir, "ember-learn", "ember-jsonapi-docs");
 
     automated("Installing node dependencies");
-    if !opts.dry_run {
+    if !dry_run {
         process::Command::new("yarn")
-            .current_dir(&jsonapi_docs_dir)
+            .current_dir(dir)
             .arg("install")
             .spawn()
             .expect("Could not spawn new process")
@@ -18,14 +24,38 @@ pub fn run(dir: &std::path::Path, opts: &Opts) {
     }
 
     automated("Generating API documentation…");
-    if !opts.dry_run {
+    if !dry_run {
         process::Command::new("yarn")
-            .current_dir(&jsonapi_docs_dir)
-            .envs(vars)
+            .current_dir(dir)
+            .envs(vars.iter())
             .args(&["run", "start", "--sync"])
             .spawn()
             .unwrap()
             .wait()
             .expect("Could not compile API documentation");
+    }
+
+    automated(format!("Uploading ember api docs for {}", new_version).as_str());
+    if !dry_run {
+        process::Command::new("yarn")
+            .current_dir(dir)
+            .envs(vars.iter())
+            .args(&["run", "start", "--project", "ember", "--version", new_version.as_str(), "--ignorePreviouslyIndexedDoc"])
+            .spawn()
+            .unwrap()
+            .wait()
+            .expect("Could not upload ember api docs API documentation");
+    }
+
+    automated(format!("Uploading ember-data api docs for {}", new_version).as_str());
+    if !dry_run {
+        process::Command::new("yarn")
+            .current_dir(dir)
+            .envs(vars)
+            .args(&["run", "start", "--project", "ember-data", "--version", new_version.as_str(), "--ignorePreviouslyIndexedDoc"])
+            .spawn()
+            .unwrap()
+            .wait()
+            .expect("Could not upload ember api docs API documentation");
     }
 }

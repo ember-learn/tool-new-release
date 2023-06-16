@@ -80,7 +80,7 @@ pub mod api_docs {
     type AwsCredentials = HashMap<String, String>;
 
     pub fn read() -> AwsCredentials {
-        let read = super::read("op://Ember Learning Team/api_docs_toml/notesPlain");
+        let read = super::read("op://Ember Learning Team/api_docs_toml/notes");
         toml::from_str::<AwsCredentials>(&read).unwrap()
     }
 }

@@ -14,24 +14,24 @@ static STATIC_STR: &str = "
     <script src=\"https://button.glitch.me/button.js\"></script>
 ";
 
-pub fn run(dir: &std::path::Path, opts: &crate::Opts, version: &Version) {
+pub fn run(dir: &std::path::Path, dry_run: bool, version: &Version) {
     let version = &format!("v{}", version);
 
-    if !opts.dry_run {
+    if !dry_run {
         automated("Cloning Glitch starter app");
         let glitch_repo_url = crate::utils::op::glitch::read();
-        let (glitch_repo, glitch_dir) = crate::git::clone::clone(dir, glitch_repo_url);
+        let glitch_repo = crate::git::clone::clone_or_skip(dir, glitch_repo_url);
 
         automated("Updating Glitch app with content from ember-new-output");
-        update_repo_files(&glitch_dir, version);
-        update_package_json(glitch_dir.clone());
-        update_index_html(glitch_dir.clone());
+        update_repo_files(&dir, version);
+        update_package_json(dir.to_path_buf());
+        update_index_html(dir.to_path_buf());
 
         let index = crate::git::add::add(&glitch_repo);
         crate::git::commit::commit(index, &glitch_repo, version);
 
         automated("Pushing changes to Glitch");
-        crate::glitch::push::push(glitch_dir);
+        crate::glitch::push::push(dir.to_path_buf());
 
         println!("\n");
     }

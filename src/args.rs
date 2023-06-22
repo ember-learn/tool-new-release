@@ -33,9 +33,6 @@ pub enum Project {
   /// Prepare the release blog post on blog.emberjs.com
   BlogPost,
 
-  /// Update the releases page on emberjs.com/releases/
-  ReleasePages,
-
   /// Update the Glitch project
   Glitch { 
     /// Set this to be the version you're trying to release

@@ -9,7 +9,6 @@ mod projects {
     pub mod bot;
     pub mod glitch;
     pub mod guides;
-    pub mod release_pages;
     pub mod wikipedia;
 }
 mod cli;
@@ -35,7 +34,6 @@ fn get_project_name(project: &args::Project) -> &'static str {
         args::Project::GuidesSearch => "Guides",
         args::Project::ApiDocs { new_version: _ } => "ApiDocs",
         args::Project::BlogPost => "BlogPost",
-        args::Project::ReleasePages => "ReleasePages",
         args::Project::Glitch { version: _ } => "Glitch",
         args::Project::Wikipedia => "Wikipedia",
         args::Project::Bot { major_version: _ } => "Bot",
@@ -72,7 +70,6 @@ fn main() {
         args::Project::GuidesSearch => projects::guides::publish_algolia(dir, args.dry_run),
         args::Project::ApiDocs { new_version } => projects::api::run(dir, args.dry_run, new_version),
         args::Project::BlogPost => projects::blog_post::run(),
-        args::Project::ReleasePages => projects::release_pages::run(),
         args::Project::Glitch { version } => projects::glitch::run(dir, args.dry_run, version),
         args::Project::Wikipedia => projects::wikipedia::run(),
         args::Project::Bot { major_version } => {

@@ -38,9 +38,9 @@ pub enum Project {
 
   /// Update the Glitch project
   Glitch { 
-    /// Set this to true if you're doing a major version release
-    #[arg(long, global = true)]
-    major_version: bool,
+    /// Set this to be the version you're trying to release
+    #[arg(long)]
+    version: String,
   },
 
   /// Update details on wikipedia

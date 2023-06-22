@@ -1,8 +1,8 @@
-use semver::Version;
 use std::{
     fs::File,
     io::Write,
     path::{Path, PathBuf},
+    process::Command,
 };
 
 use crate::utils::prompt::automated;
@@ -14,21 +14,20 @@ static STATIC_STR: &str = "
     <script src=\"https://button.glitch.me/button.js\"></script>
 ";
 
-pub fn run(dir: &std::path::Path, dry_run: bool, version: &Version) {
-    let version = &format!("v{}", version);
-
+pub fn run(dir: &std::path::Path, dry_run: bool, version: String) {
     if !dry_run {
         automated("Cloning Glitch starter app");
         let glitch_repo_url = crate::utils::op::glitch::read();
         let glitch_repo = crate::git::clone::clone_or_skip(dir, glitch_repo_url);
 
         automated("Updating Glitch app with content from ember-new-output");
-        update_repo_files(&dir, version);
+        update_repo_files(&dir, &version);
         update_package_json(dir.to_path_buf());
+        run_npm_install(dir);
         update_index_html(dir.to_path_buf());
 
         let index = crate::git::add::add(&glitch_repo);
-        crate::git::commit::commit(index, &glitch_repo, version);
+        crate::git::commit::commit(index, &glitch_repo, &version);
 
         automated("Pushing changes to Glitch");
         crate::glitch::push::push(dir.to_path_buf());
@@ -40,11 +39,21 @@ pub fn run(dir: &std::path::Path, dry_run: bool, version: &Version) {
 fn update_package_json(mut path: PathBuf) {
     path.push("package.json");
     let original_content = std::fs::read_to_string(&path).unwrap();
-    let modified_content = original_content.replace("ember serve", "ember serve -p 4200");
+    let modified_content = original_content.replace("ember serve", "npx ember serve -p 4200");
     let mut file = std::fs::File::create(&path).unwrap();
     file.write_all(modified_content.as_bytes())
         .expect("Could not update package.json");
     path.pop();
+}
+
+fn run_npm_install(dir: &Path) {
+    Command::new("npm")
+        .current_dir(dir)
+        .arg("install")
+        .spawn()
+        .expect("Could not start process")
+        .wait()
+        .expect("Could not install dependencies");
 }
 
 fn update_index_html(mut path: PathBuf) {
@@ -67,7 +76,7 @@ fn update_repo_files(glitch_dir: &Path, version: &str) {
 fn download_ember_new(version: &str) -> PathBuf {
     let mut zip_path = tempfile::tempdir().unwrap().into_path();
     let zip_url = format!(
-        "https://github.com/ember-cli/ember-new-output/archive/{}.zip",
+        "https://github.com/ember-cli/ember-new-output/archive/v{}.zip",
         &version
     );
 

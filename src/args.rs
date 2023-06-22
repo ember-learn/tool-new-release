@@ -24,11 +24,7 @@ pub enum Project {
   GuidesSearch,
 
   /// Release the API Docs api.emberjs.com
-  ApiDocs {
-    /// The version that you're trying to release
-    #[clap(long)]
-    new_version: String,
-  },
+  ApiDocs,
 
   /// Prepare the release blog post on blog.emberjs.com
   BlogPost,

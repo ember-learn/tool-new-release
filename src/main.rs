@@ -32,7 +32,7 @@ fn get_project_name(project: &args::Project) -> &'static str {
     match project {
         args::Project::Guides => "Guides",
         args::Project::GuidesSearch => "Guides",
-        args::Project::ApiDocs { new_version: _ } => "ApiDocs",
+        args::Project::ApiDocs => "ApiDocs",
         args::Project::BlogPost => "BlogPost",
         args::Project::Glitch { version: _ } => "Glitch",
         args::Project::Wikipedia => "Wikipedia",
@@ -68,7 +68,7 @@ fn main() {
     match args.project {
         args::Project::Guides => projects::guides::run(dir, args.dry_run),
         args::Project::GuidesSearch => projects::guides::publish_algolia(dir, args.dry_run),
-        args::Project::ApiDocs { new_version } => projects::api::run(dir, args.dry_run, new_version),
+        args::Project::ApiDocs => projects::api::run(dir, args.dry_run),
         args::Project::BlogPost => projects::blog_post::run(),
         args::Project::Glitch { version } => projects::glitch::run(dir, args.dry_run, version),
         args::Project::Wikipedia => projects::wikipedia::run(),

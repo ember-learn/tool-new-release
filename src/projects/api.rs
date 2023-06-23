@@ -1,15 +1,14 @@
-use crate::utils::prompt::automated;
-use crate::Opts;
-use std::process;
+use crate::{utils::prompt::automated};
+use std::{process};
 
-pub fn run(dir: &std::path::Path, opts: &Opts) {
+pub fn run(dir: &std::path::Path, dry_run: bool) {
     let vars = crate::utils::op::api_docs::read();
-    let (_, jsonapi_docs_dir) = crate::clone::github(dir, "ember-learn", "ember-jsonapi-docs");
+    crate::utils::clone::github(dir, "ember-learn", "ember-jsonapi-docs");
 
     automated("Installing node dependencies");
-    if !opts.dry_run {
+    if !dry_run {
         process::Command::new("yarn")
-            .current_dir(&jsonapi_docs_dir)
+            .current_dir(dir)
             .arg("install")
             .spawn()
             .expect("Could not spawn new process")
@@ -18,9 +17,9 @@ pub fn run(dir: &std::path::Path, opts: &Opts) {
     }
 
     automated("Generating API documentation…");
-    if !opts.dry_run {
+    if !dry_run {
         process::Command::new("yarn")
-            .current_dir(&jsonapi_docs_dir)
+            .current_dir(dir)
             .envs(vars)
             .args(&["run", "start", "--sync"])
             .spawn()

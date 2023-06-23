@@ -6,7 +6,7 @@ use serde_json::Value;
 
 pub fn run() {
     let (preview_version, preview_date) = get_version_modified_pair("ember-source@beta");
-    let today = chrono::offset::Local::today().format("%-d %B %Y");
+    let today = chrono::offset::Local::now().format("%-d %B %Y");
 
     let infobox = format!(
         "| latest preview version = {preview_version}
@@ -55,7 +55,7 @@ fn get_version_modified_pair(
     let modified_str = times[version].as_str().unwrap();
     let modified_date = chrono::DateTime::parse_from_rfc3339(modified_str)
         .unwrap()
-        .date();
+        .date_naive();
     let modified_formatted = modified_date.format("%Y|%m|%d");
 
     (semver::Version::parse(version).unwrap(), modified_formatted)

@@ -9,6 +9,16 @@ pub fn read_input(message: &str) -> String {
     buffer
 }
 
+pub fn yes_no(message: &str) -> bool {
+    print!("{} ", message);
+    let _ = std::io::stdout().flush();
+
+    let mut buffer = String::new();
+    let _ = std::io::stdin().read_line(&mut buffer);
+
+    buffer.trim().eq("y")
+}
+
 pub fn pause() {
     let mut stdin = std::io::stdin();
     let mut stdout = std::io::stdout();

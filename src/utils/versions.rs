@@ -43,9 +43,9 @@ impl CurrentVersions {
         let mut target = deployed.clone();
 
         if major_version {
-            target.increment_major();
+            target.major += 1;
         } else {
-            target.increment_minor();
+            target.minor += 1;
         }
 
         Self { deployed, target }

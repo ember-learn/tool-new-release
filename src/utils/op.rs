@@ -80,7 +80,13 @@ pub mod api_docs {
     type AwsCredentials = HashMap<String, String>;
 
     pub fn read() -> AwsCredentials {
-        let read = super::read("op://Ember Learning Team/api_docs_toml/notesPlain");
-        toml::from_str::<AwsCredentials>(&read).unwrap()
+        let read = super::read("op://Ember Learning Team/api_docs_toml/notes");
+        let vars = toml::from_str::<AwsCredentials>(&read).unwrap();
+
+        if vars.len() == 0 {
+            panic!("Error getting AWS Credentials from 1Password - this is most likely because it recieved an empty note");
+        }
+
+        vars
     }
 }

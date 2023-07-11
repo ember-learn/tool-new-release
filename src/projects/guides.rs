@@ -15,7 +15,7 @@ pub fn run(dir: &Path, dry_run: bool) {
     let version = Version::parse(&stdout_result[1..stdout_result.len()].trim()).unwrap();
 
     if  !req.matches(&version) {
-        panic!("Guides can only be installed with node version 16 right now. you have {:?}", stdout_result)
+        panic!("Guides can only be installed with node version 14 right now. you have {:?}", stdout_result)
     }
 
     manual("Check for pending PRs: https://github.com/ember-learn/guides-source/pulls");

@@ -10,12 +10,12 @@ pub fn run(dir: &Path, dry_run: bool) {
 
     let stdout_result = String::from_utf8(npm_version_command.stdout).unwrap();
 
-    let req = VersionReq::parse(">=14.0.0, <15.0.0").unwrap();
+    let req = VersionReq::parse(">=14.0.0").unwrap();
 
     let version = Version::parse(&stdout_result[1..stdout_result.len()].trim()).unwrap();
 
     if  !req.matches(&version) {
-        panic!("Guides can only be installed with node version 16 right now. you have {:?}", stdout_result)
+        panic!("Guides can only be installed with node version 14 and above right now. you have {:?}", stdout_result)
     }
 
     manual("Check for pending PRs: https://github.com/ember-learn/guides-source/pulls");
@@ -35,7 +35,7 @@ pub fn run(dir: &Path, dry_run: bool) {
         if !status.success() {
             panic!("npm install failed");
         }
-        
+
     }
 
     automated("Creating new version of guides");

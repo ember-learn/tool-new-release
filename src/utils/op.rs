@@ -68,11 +68,6 @@ pub fn read(path: &str) -> String {
     let output = op().args(&["read", path]).output().unwrap();
     String::from_utf8_lossy(&output.stdout).trim().to_string()
 }
-pub mod glitch {
-    pub fn read() -> String {
-        super::read("op://Ember Learning Team/Glitch/password")
-    }
-}
 
 pub mod api_docs {
     use std::collections::HashMap;

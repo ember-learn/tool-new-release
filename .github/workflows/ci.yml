@@ -12,22 +12,22 @@ name: CI
 jobs:
   build:
     name: Build
-    runs-on: '${{ matrix.os }}'
+    runs-on: "${{ matrix.os }}"
     strategy:
       matrix:
         include:
           - os: macos-latest
             target: aarch64-apple-darwin
-            suffix: ''
+            suffix: ""
           - os: macos-latest
             target: x86_64-apple-darwin
-            suffix: ''
+            suffix: ""
           - os: ubuntu-latest
             target: x86_64-unknown-linux-musl
-            suffix: ''
+            suffix: ""
           - os: ubuntu-latest
             target: x86_64-unknown-linux-gnu
-            suffix: ''
+            suffix: ""
           - os: windows-latest
             target: x86_64-pc-windows-msvc
             suffix: .exe
@@ -51,7 +51,7 @@ jobs:
       - name: Make binary executable
         run: chmod u+x ./target/${{ matrix.target }}/release/tool-new-release${{ matrix.suffix }}
       - name: Archive production artifacts
-        uses: actions/upload-artifact@v2
+        uses: actions/upload-artifact@v4
         with:
           name: tool-new-release-${{ matrix.target }}
           path: ./target/${{ matrix.target }}/release/tool-new-release${{ matrix.suffix }}

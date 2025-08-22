@@ -18,9 +18,7 @@ use clap::Parser;
 
 pub mod utils;
 mod git {
-    pub mod add;
     pub mod clone;
-    pub mod commit;
     pub mod push;
 }
 

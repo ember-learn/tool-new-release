@@ -1,3 +1,7 @@
+
+> [!CAUTION]
+> Do not use this tool. This tool is deprecated and you should be using [ember-learn-release-tool](https://github.com/ember-learn/ember-learn-release-tool) instead.
+
 # tool-new-release
 
 This is a tool to help the learning team with the ember.js releases for the 6-week cycle.
